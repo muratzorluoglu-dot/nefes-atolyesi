@@ -172,6 +172,10 @@ header .langsw{display:flex;gap:4px}
 header .langsw button{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:.8rem;padding:5px 10px;border-radius:8px;letter-spacing:.04em}
 header .langsw button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.envnote{display:flex;flex-direction:column;gap:10px;margin:14px 0 0;padding:14px 16px;border-radius:14px;border:1px solid var(--hold);background:var(--surface)}
+.envnote p{margin:0}
+.envnote a.btn{text-decoration:none;display:inline-block}
+.envurl{user-select:all;font-weight:600;color:var(--fg)}
 .vsel{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);max-width:100%}
 </style>
 
@@ -186,6 +190,14 @@ header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offs
       <button data-lang="en" aria-pressed="false">EN</button>
     </div>
   </header>
+  <div class="envnote" id="envnote" hidden>
+    <p data-i="envTxt"></p>
+    <div class="row">
+      <a class="btn pri" id="envlink" href="https://muratzorluoglu-dot.github.io/nefes-atolyesi/" target="_blank" rel="noopener" data-i="envOpen"></a>
+      <button class="btn ghost small" id="envcopy" data-i="envCopy"></button>
+    </div>
+    <p class="note" style="margin:0"><span class="envurl">muratzorluoglu-dot.github.io/nefes-atolyesi</span> · <span data-i="envData"></span></p>
+  </div>
   <nav class="tabs" role="tablist">
     <button role="tab" id="t-egz" aria-selected="true" data-v="egzersiz" data-i="tabEx"></button>
     <button role="tab" id="t-tis" aria-selected="false" data-v="tislama" data-i="tabHiss"></button>
@@ -386,6 +398,10 @@ const I={
  noHissP:["Bu dönemde tıslama testi yok. Tıslama testi sekmesinden ölçüm yapabilirsin.","No hiss tests in this period. You can measure one in the Hiss test tab."],
  storeDb:["Kayıtların hesabında saklanıyor; Claude'daki sayfayı hangi cihazdan açarsan aynı veriyi görürsün.","Your records are saved to your account, so you see the same data on any device that opens this page in Claude."],
  storeLocal:["Kayıtlar bu tarayıcıda saklanıyor.","Records are saved in this browser."],
+ envTxt:["Claude uygulaması bu sayfanın telefonun hoparlörünü ve mikrofonunu kullanmasına izin vermiyor. Sesli yönlendirme, zil ve tıslama testindeki mikrofon burada çalışmaz. Telefonda hepsi için uygulamayı Safari'de aç.","The Claude app doesn't let this page use your phone's speaker or microphone, so voice guidance, the bell and the hiss-test microphone don't work here. Open the app in Safari to use them all."],
+ envOpen:["Safari'de aç","Open in Safari"],envCopy:["Linki kopyala","Copy link"],envCopied:["Kopyalandı","Copied"],
+ envData:["Oradaki kayıtlar telefonda ayrı tutulur.","Records there are kept separately on the phone."],
+ ver:["Sürüm","Version"],
  wd:[["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"],["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]],
  mo:[["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"],["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]],
  parts:[["Sabah","Öğle","Akşamüstü","Akşam","Gece"],["Morning","Midday","Afternoon","Evening","Night"]],
@@ -507,6 +523,22 @@ let actx=null, soundOn=ls.get("sound",true), voiceOn=ls.get("voice",true), tts=n
 const TTSV=["airy","buttery","glassy","rounded"];
 let ttsVoice=ls.get("ttsv","airy");
 function ac(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(actx&&actx.state==="suspended")actx.resume();return actx}
+// iPhone: sessiz moddayken de çalsın ve ses ilk dokunuşta açılsın
+let unlocked=false;
+function silentWav(){
+  const n=800,b=new ArrayBuffer(44+n),v=new DataView(b),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
+  for(let i=0;i<n;i++)v.setUint8(44+i,128);
+  return URL.createObjectURL(new Blob([b],{type:"audio/wav"}));
+}
+function unlockAudio(){
+  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+  const a=ac();
+  if(unlocked)return; unlocked=true;
+  try{const el=new Audio(silentWav());el.setAttribute("playsinline","");el.play().catch(()=>{})}catch(e){}
+  try{if(a){const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}}catch(e){}
+}
 function bell(k){
   if(!soundOn)return;const a=ac();if(!a)return;
   const f={in:528,in2:660,hold:396,out:330,wait:264,end:440}[k]||440;
@@ -525,8 +557,15 @@ function pickSS(){const vs=ssVoices();if(!vs.length)return null;const saved=ls.g
 function say(text,force){
   if(!force&&(!soundOn||!voiceOn))return;
   if(tts){tts.speak(text,{language:lang,voice:ttsVoice,rate:.9}).catch(()=>{});return}
-  try{if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickSS();if(v)u.voice=v;u.lang=v?v.lang:(lang==="en"?"en-GB":"tr-TR");u.rate=.88;u.pitch=1;u.volume=1;speechSynthesis.speak(u)}}catch(e){}
+  try{if("speechSynthesis" in window){
+    const ss=speechSynthesis;
+    if(ss.speaking||ss.pending)ss.cancel();
+    const u=new SpeechSynthesisUtterance(text);const v=pickSS();if(v)u.voice=v;u.lang=v?v.lang:(lang==="en"?"en-GB":"tr-TR");
+    u.rate=.88;u.pitch=1;u.volume=1;lastU=u;
+    try{ss.resume()}catch(e){}
+    ss.speak(u)}}catch(e){}
 }
+let lastU=null;
 function hush(){try{tts&&tts.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}
 (async()=>{try{if(window.claude&&window.claude.use){tts=await window.claude.use("tts");if(tts&&cur&&!$("#setup").hidden)openSetup(cur.id)}}catch(e){}})();
 try{speechSynthesis.addEventListener("voiceschanged",()=>{if(cur&&!$("#setup").hidden)openSetup(cur.id)})}catch(e){}
@@ -585,7 +624,7 @@ function openSetup(id,scroll){
    <div class="row">
      <label class="switch" for="vo"><input type="checkbox" id="vo" ${voiceOn?"checked":""}> ${t("voiceGuide")}</label>
    </div>
-   ${vp?`<div class="row" id="vrow" ${voiceOn?"":"hidden"}><span class="lbl">${t("voice")}</span>${vp}<button class="btn small ghost" id="vtest">${t("listen")}</button></div>`:""}
+   <div class="row" id="vrow" ${voiceOn?"":"hidden"}>${vp?`<span class="lbl">${t("voice")}</span>${vp}`:""}<button class="btn small ghost" id="vtest">${t("listen")}</button></div>
    <div class="row"><button class="btn pri" id="go">${t("start")}</button><button class="btn ghost" id="cx">${t("close")}</button></div>`;
   s.querySelectorAll("#durchips .chip").forEach(c=>c.addEventListener("click",()=>{dur=+c.dataset.d;ls.set("dur",dur);
     s.querySelectorAll("#durchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"))}));
@@ -595,9 +634,9 @@ function openSetup(id,scroll){
   s.querySelectorAll("#vchips .chip").forEach(c=>c.addEventListener("click",()=>{ttsVoice=c.dataset.tv;ls.set("ttsv",ttsVoice);
     s.querySelectorAll("#vchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"));say(t("previewSay"),true)}));
   const vs=$("#vsel"); if(vs)vs.addEventListener("change",()=>{ls.set("ssv-"+lang,vs.value);say(t("previewSay"),true)});
-  const vt=$("#vtest"); if(vt)vt.addEventListener("click",()=>{ac();say(t("previewSay"),true)});
+  const vt=$("#vtest"); if(vt)vt.addEventListener("click",()=>{unlockAudio();bell("in");say(t("previewSay"),true)});
   $("#cx").addEventListener("click",()=>{s.hidden=true});
-  $("#go").addEventListener("click",()=>{ac();start(cur)});
+  $("#go").addEventListener("click",()=>{unlockAudio();start(cur)});
   if(scroll)s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
 }
 
@@ -705,7 +744,7 @@ function prepHiss(){setMode(mode)}
 function resetHiss(){H={state:"idle"};$("#hissbtn").classList.remove("live");$("#hisst").textContent=fmt(0);
   $("#hisslbl").textContent=t("hStart");$("#hissstatus").textContent="";}
 function hissClick(){
-  ac();
+  unlockAudio();
   if(mode==="elle"){
     if(H.state!=="run"){H={state:"run",t0:performance.now()};$("#hissbtn").classList.add("live");$("#hisslbl").textContent=t("hTapEnd");
       $("#hissstatus").textContent=t("hHiss");bell("in");hissLoop()}
@@ -1048,6 +1087,24 @@ document.querySelectorAll(".langsw button").forEach(b=>b.addEventListener("click
 }));
 function renderAll(){renderList();renderHiss();renderRapor()}
 
+/* ---------- Ortam: Claude mobil uygulamasında ses/mikrofon yok ---------- */
+const VER="3 · 23.11.2026";
+{
+  const inClaude=!!(window.claude&&window.claude.use);
+  const touch=(()=>{try{return matchMedia("(pointer:coarse)").matches||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)}catch(e){return false}})();
+  $("#envnote").hidden=!(inClaude&&touch);
+  $("#envcopy").addEventListener("click",()=>{
+    const u=$("#envlink").href, b=$("#envcopy");
+    const ok=()=>{b.textContent=t("envCopied");setTimeout(()=>{b.textContent=t("envCopy")},1800)};
+    try{navigator.clipboard.writeText(u).then(ok,()=>{selURL()})}catch(e){selURL()}
+  });
+  function selURL(){try{const r=document.createRange();r.selectNodeContents(document.querySelector(".envurl"));const s=getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}}
+  const v=document.createElement("p");v.className="note";v.style.textAlign="center";v.id="ver";
+  $("#wrap").appendChild(v);
+}
+const _apply=applyLang;
+applyLang=function(){_apply();$("#ver").textContent=t("ver")+" "+VER};
+
 applyLang();
 renderAll();
 show(location.hash.slice(1));
@@ -1055,6 +1112,8 @@ initDb();
 })();
 </script>
 
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+<script>if("serviceWorker" in navigator){var had=!!navigator.serviceWorker.controller,rl=false;
+navigator.serviceWorker.addEventListener("controllerchange",function(){if(had&&!rl){rl=true;location.reload()}});
+navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update()}).catch(function(){});}</script>
 </body>
 </html>
