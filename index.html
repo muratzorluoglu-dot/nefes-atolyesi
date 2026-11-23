@@ -135,27 +135,68 @@ td.r,th.r{text-align:right}
 .small{font-size:.8rem;padding:4px 10px;border-radius:8px}
 .stack{display:flex;flex-direction:column;gap:16px}
 .empty{color:var(--muted);text-align:center;padding:18px}
+.goalstrip{all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;flex-wrap:wrap;width:100%;box-sizing:border-box;margin:0 0 14px;padding:12px 14px;border-radius:12px;background:var(--accent-soft);color:var(--fg);font-weight:600;font-size:.9rem}
+.goalstrip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.goalstrip .bar{flex:1 1 120px;height:8px;border-radius:4px;background:var(--surface);overflow:hidden;min-width:100px}
+.goalstrip .bar i{display:block;height:100%;background:var(--accent)}
+.goalstrip .nums{font-size:.9rem}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:10px;border:1px solid var(--line);min-width:0}
+.wd.today{border-color:var(--accent)}
+.wd .n{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.wd .col{width:14px;height:56px;border-radius:7px;background:var(--line);position:relative;overflow:hidden}
+.wd .col i{position:absolute;left:0;right:0;bottom:0;background:var(--accent)}
+.wd.ok .col i{background:var(--good)}
+.wd .m{font-size:.8rem;font-variant-numeric:tabular-nums;font-weight:600}
+.wd .ck{font-size:.75rem;color:var(--good);min-height:1.1em}
+.wd.future{opacity:.5}
+.prog{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent)}
+.weeksum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:600;margin:2px 0 8px}
+.stats.six{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stat .d{font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.hb{display:grid;grid-template-columns:minmax(84px,auto) 1fr auto;gap:6px 10px;align-items:center;font-size:.88rem}
+.hb .t{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.hb .t i{display:block;height:100%;background:var(--accent)}
+.hb .t i.top{background:var(--hold)}
+.hb .v{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;white-space:nowrap}
+.hb .s{color:var(--muted);font-weight:500}
+.dateinp{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:6px}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:10px}
+.mini{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-right:6px}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}.stats.six{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.custom{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:1.6rem}}
 @media (prefers-reduced-motion:reduce){.hissbtn{transition:none}}
+header .langsw{display:flex;gap:4px}
+header .langsw button{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:.8rem;padding:5px 10px;border-radius:8px;letter-spacing:.04em}
+header .langsw button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vsel{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);max-width:100%}
 </style>
 
-<div class="wrap" lang="tr">
+<div class="wrap" id="wrap" lang="tr">
   <header>
     <div>
-      <h1>Nefes <b>Atölyesi</b></h1>
-      <p class="sub">Ritmini seç, küreyi izle, sesle yönlendirilerek nefes al.</p>
+      <h1 data-ih="h1">Nefes <b>Atölyesi</b></h1>
+      <p class="sub" data-i="sub"></p>
+    </div>
+    <div class="langsw" role="group" aria-label="Dil / Language">
+      <button data-lang="tr" aria-pressed="true">TR</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
   </header>
   <nav class="tabs" role="tablist">
-    <button role="tab" id="t-egz" aria-selected="true" data-v="egzersiz">Nefes egzersizleri</button>
-    <button role="tab" id="t-tis" aria-selected="false" data-v="tislama">Tıslama testi</button>
-    <button role="tab" id="t-gec" aria-selected="false" data-v="gecmis">Geçmiş</button>
+    <button role="tab" id="t-egz" aria-selected="true" data-v="egzersiz" data-i="tabEx"></button>
+    <button role="tab" id="t-tis" aria-selected="false" data-v="tislama" data-i="tabHiss"></button>
+    <button role="tab" id="t-gec" aria-selected="false" data-v="gecmis" data-i="tabRep"></button>
   </nav>
 
   <section id="v-egzersiz">
+    <button class="goalstrip" id="goalstrip"></button>
     <div class="legend">
-      <span><i class="ph-in"></i>Nefes al</span><span><i class="ph-hold"></i>Tut</span>
-      <span><i class="ph-out"></i>Nefes ver</span><span><i class="ph-wait"></i>Boş bekle</span>
+      <span><i class="ph-in"></i><span data-i="legIn"></span></span><span><i class="ph-hold"></i><span data-i="legHold"></span></span>
+      <span><i class="ph-out"></i><span data-i="legOut"></span></span><span><i class="ph-wait"></i><span data-i="legWait"></span></span>
     </div>
     <div class="grid" id="exlist"></div>
     <div id="setup" class="panel" hidden style="margin-top:16px"></div>
@@ -164,37 +205,37 @@ td.r,th.r{text-align:right}
   <section id="v-tislama" hidden>
     <div class="stack">
       <div class="panel">
-        <h2>Tıslayarak nefes verme testi</h2>
+        <h2 data-i="hissTitle"></h2>
         <ol class="howto">
-          <li>Dik dur, burundan derin, karnını şişirerek nefes al.</li>
-          <li>Dişlerin hafif kapalı, “sssss” diye tıslayarak ağızdan, düzenli ve yavaş ver.</li>
-          <li>Nefesin bitene kadar sesi kesme. Süren kaydedilir.</li>
+          <li data-i="hiss1"></li>
+          <li data-i="hiss2"></li>
+          <li data-i="hiss3"></li>
         </ol>
         <div class="row">
-          <span class="lbl">Ölçüm</span>
+          <span class="lbl" data-i="measure"></span>
           <div class="chips" id="modechips">
-            <button class="chip" data-m="mic" aria-pressed="true">Mikrofon dinlesin</button>
-            <button class="chip" data-m="elle" aria-pressed="false">Elle başlat / bitir</button>
+            <button class="chip" data-m="mic" aria-pressed="true" data-i="modeMic"></button>
+            <button class="chip" data-m="elle" aria-pressed="false" data-i="modeHand"></button>
           </div>
         </div>
         <p class="note" id="modenote"></p>
       </div>
       <div class="panel hiss">
-        <button class="hissbtn" id="hissbtn"><span class="big" id="hisst">0,0</span><span class="sm" id="hisslbl">Başla</span></button>
+        <button class="hissbtn" id="hissbtn"><span class="big" id="hisst">0,0</span><span class="sm" id="hisslbl"></span></button>
         <div class="meter" id="meter" hidden><i id="meterfill"></i><b id="meterthr"></b></div>
         <div class="status" id="hissstatus" aria-live="polite"></div>
         <div class="row" id="sensrow" hidden>
-          <label class="note" for="sens">Hassasiyet</label>
+          <label class="note" for="sens" data-i="sens"></label>
           <input type="range" id="sens" min="4" max="20" step="1" value="10">
         </div>
       </div>
       <div class="panel">
-        <h2>Gelişimin</h2>
+        <h2 data-i="progress"></h2>
         <div class="stats" id="hstats"></div>
         <div class="chart" id="hchart"></div>
       </div>
       <div class="panel">
-        <h2>Tüm ölçümler</h2>
+        <h2 data-i="allMeas"></h2>
         <div id="hlist"></div>
       </div>
     </div>
@@ -202,8 +243,39 @@ td.r,th.r{text-align:right}
 
   <section id="v-gecmis" hidden>
     <div class="stack">
-      <div class="stats" id="sstats"></div>
-      <div class="panel"><h2>Yapılan seanslar</h2><div id="slist"></div></div>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between">
+          <h2 data-i="weekGoal"></h2>
+          <button class="btn ghost small" id="goaledit" aria-expanded="false"></button>
+        </div>
+        <div id="goalform" class="stack" hidden style="gap:10px">
+          <div class="row"><span class="lbl" style="min-width:120px" data-i="dailyLen"></span><div class="chips" id="g-dk"></div></div>
+          <div class="row"><span class="lbl" style="min-width:120px" data-i="perWeek"></span><div class="chips" id="g-gun"></div></div>
+          <p class="note" id="g-ozet"></p>
+        </div>
+        <div id="weekview"></div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i="periodRep"></h2>
+        <div class="chips" id="perchips"></div>
+        <div class="row" id="customrange" hidden>
+          <label class="note" for="r-from"><span data-i="from"></span> <input type="date" id="r-from" class="dateinp"></label>
+          <label class="note" for="r-to"><span data-i="to"></span> <input type="date" id="r-to" class="dateinp"></label>
+        </div>
+        <div class="stats six" id="rkpi"></div>
+        <div class="chart" id="rchart"></div>
+      </div>
+
+      <div class="two">
+        <div class="panel"><h2 data-i="byHour"></h2><div id="rsaat"></div></div>
+        <div class="panel"><h2 data-i="byWd"></h2><div id="rgun"></div></div>
+      </div>
+
+      <div class="panel"><h2 data-i="byEx"></h2><div id="regz"></div></div>
+      <div class="panel"><h2 data-i="growth"></h2><p class="note" data-i="growthNote"></p><div id="rsure"></div></div>
+      <div class="panel"><h2 data-i="perf"></h2><div id="rperf"></div></div>
+      <div class="panel"><h2 data-i="sessions"></h2><div id="slist"></div></div>
       <p class="note" id="storenote"></p>
     </div>
   </section>
@@ -222,73 +294,177 @@ td.r,th.r{text-align:right}
         stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 50 50)"></circle>
     </svg>
     <div class="center">
-      <div class="phase" id="s-phase">Hazırlan</div>
-      <div class="count" id="s-count">3</div>
+      <div class="phase" id="s-phase"></div>
+      <div class="count" id="s-count"></div>
       <div class="hint" id="s-hint"></div>
     </div>
   </div>
   <div class="controls" id="s-controls">
-    <button class="btn" id="s-pause">Duraklat</button>
-    <button class="btn" id="s-sound">Ses: açık</button>
-    <button class="btn ghost" id="s-stop">Bitir</button>
+    <button class="btn" id="s-pause"></button>
+    <button class="btn" id="s-sound"></button>
+    <button class="btn ghost" id="s-stop" data-i="stop"></button>
   </div>
   <div class="done" id="s-done" hidden>
-    <div class="phase">Tamamlandı</div>
+    <div class="phase" data-i="done"></div>
     <div class="note" id="s-sum"></div>
-    <button class="btn pri" id="s-close">Kapat</button>
+    <button class="btn pri" id="s-close" data-i="close"></button>
   </div>
 </div>
 
 <script>
 (function(){
 "use strict";
-/* ---------- Egzersizler ---------- */
-const L={in:"Nefes al",in2:"Bir yudum daha",hold:"Tut",out:"Nefes ver",wait:"Bekle"};
-const EX=[
- {id:"kutu",ad:"Kutu nefes",ds:"Odak ve sakinlik için dört eşit kenar. Sporcuların ve stres altındaki ekiplerin sevdiği temel teknik.",
-  p:[["in",4,"Burundan"],["hold",4,"Dolu ciğerle"],["out",4,"Ağızdan yavaşça"],["wait",4,"Boş ciğerle"]],
-  nasil:["Her kenar 4 saniye: al, tut, ver, bekle.","Omuzlar düşük, nefes karından.","Zorlanırsan 3 saniyeye in."]},
- {id:"478",ad:"4-7-8 rahatlama",ds:"Uykuya geçiş ve kaygıyı yatıştırmak için. Uzun tutma ve daha uzun verme sinir sistemini yavaşlatır.",
-  p:[["in",4,"Burundan sessizce"],["hold",7,""],["out",8,"Ağızdan, hafif vınlayarak"]],
-  nasil:["Dil ucu üst ön dişlerin arkasında.","İlk günlerde 4 tur yeterli.","Başın dönerse dur, normal nefese dön."]},
- {id:"567",ad:"5-6-7 dengesi",ds:"5 saniyede al, 6 saniye tut, 7 saniyede ver. Kutu nefesten bir adım uzun, verme her zaman en uzunu.",
-  p:[["in",5,"Burundan, karından"],["hold",6,""],["out",7,"Ağızdan, kontrollü"]],
-  nasil:["Verişi alıştan uzun tutmak gevşemeyi artırır.","Her turda süreyi eşit dağıt, sona doğru hızlanma."]},
- {id:"rez",ad:"Rezonans nefesi",ds:"Dakikada yaklaşık 5,5 nefes. Kalp atım değişkenliğini artıran, günlük 5–10 dakikalık uyum nefesi.",
-  p:[["in",5.5,"Burundan, yumuşak"],["out",5.5,"Burundan, yumuşak"]],
-  nasil:["Duraksamadan bir dalga gibi al ve ver.","Ses çıkarmadan, zorlamadan.","En iyi sonuç için 5 dakika ve üstü."]},
- {id:"sigh",ad:"Fizyolojik iç çekiş",ds:"Burundan iki kademeli alış, ağızdan uzun veriş. Ani gerginlikte birkaç turda rahatlatan hızlı teknik.",
-  p:[["in",2,"Burundan derin"],["in2",1,"Burundan kısa ek nefes"],["out",6,"Ağızdan, sonuna kadar"]],
-  nasil:["İkinci alış küçük bir “üstüne ekleme”.","Verişte ciğeri tamamen boşalt.","1–3 dakika yeterli."]},
- {id:"ucgen",ad:"Üçgen nefes",ds:"Al, tut, ver. Kutu nefesin beklemesiz hali; yeni başlayanlar için rahat bir giriş.",
-  p:[["in",4,"Burundan"],["hold",4,""],["out",4,"Ağızdan"]],
-  nasil:["Üç kenar eşit.","Rahatladıkça 5-5-5'e çıkabilirsin."]},
- {id:"uzun",ad:"Uzun veriş (4-8)",ds:"Verişi alışın iki katı yap. Toplantı öncesi ya da sinirliyken nabzı indirmek için.",
-  p:[["in",4,"Burundan"],["out",8,"Büzük dudaklarla, ağızdan"]],
-  nasil:["Dudakları mum üfler gibi büz.","Veriş akışı başından sonuna eşit olsun."]},
- {id:"esit",ad:"Eşit nefes (Sama Vritti)",ds:"Yoga geleneğinden: alış ve veriş eşit uzunlukta. Zihni dengelemek ve meditasyona hazırlanmak için.",
-  p:[["in",4,"Burundan"],["out",4,"Burundan"]],
-  nasil:["Burundan al, burundan ver.","Rahatsa her iki yönü 5–6 saniyeye uzat."]},
- {id:"ari",ad:"Arı nefesi (Bhramari)",ds:"Nefes verirken ağız kapalı “mmmm” diye vızılda. Titreşim baş bölgesini gevşetir, düşünce trafiğini azaltır.",
-  p:[["in",4,"Burundan"],["out",8,"Ağız kapalı, “mmmm” vızıltısıyla"]],
-  nasil:["Dudaklar kapalı, dişler hafif aralık.","İstersen işaret parmaklarınla kulak kepçelerini kapat.","Sessiz bir yerde dene."]},
- {id:"diyafram",ad:"Diyafram nefesi",ds:"Bir el göğüste, bir el karında. Sadece karın elinin hareket etmesini hedefleyen temel teknik; tıslama testine de hazırlar.",
-  p:[["in",4,"Burundan, karın şişsin"],["hold",2,""],["out",6,"Ağızdan, karın içeri"]],
-  nasil:["Göğüs eli neredeyse sabit kalsın.","Verişin sonunda karnı hafifçe içeri çek."]},
- {id:"ozel",ad:"Kendi ritmin",ds:"Süreleri sen belirle. 0 yazdığın aşama atlanır.",
-  p:[["in",5,"Burundan"],["hold",6,""],["out",7,"Ağızdan"],["wait",0,""]],
-  nasil:["Al, tut, ver, bekle sürelerini yaz.","Ayarın bu cihazda hatırlanır."],ozel:true}
-];
-const SURE=[1,3,5,10,15];
 const $=s=>document.querySelector(s);
-const fmt=(n,d=1)=>Number(n).toLocaleString("tr-TR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ls={get(k,d){try{const v=localStorage.getItem("nefes-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){try{localStorage.setItem("nefes-"+k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- Dil ---------- */
+let lang=ls.get("lang",(navigator.language||"tr").toLowerCase().startsWith("tr")?"tr":(navigator.language||"").toLowerCase().startsWith("en")?"en":"tr");
+const LI=()=>lang==="en"?1:0;
+const X=v=>Array.isArray(v)?v[LI()]:v;
+const loc=()=>lang==="en"?"en-GB":"tr-TR";
+const lower=s=>s.toLocaleLowerCase(loc());
+const I={
+ h1:["Nefes <b>Atölyesi</b>","Breath <b>Studio</b>"],
+ sub:["Ritmini seç, küreyi izle, sesle yönlendirilerek nefes al.","Pick a rhythm, follow the orb and breathe with voice guidance."],
+ tabEx:["Nefes egzersizleri","Breathing exercises"],tabHiss:["Tıslama testi","Hiss test"],tabRep:["Hedef ve rapor","Goals & report"],
+ legIn:["Nefes al","Inhale"],legHold:["Tut","Hold"],legOut:["Nefes ver","Exhale"],legWait:["Boş bekle","Rest empty"],
+ hissTitle:["Tıslayarak nefes verme testi","Hissing exhale test"],
+ hiss1:["Dik dur, burundan derin, karnını şişirerek nefes al.","Stand tall and take a deep breath through your nose, letting your belly expand."],
+ hiss2:["Dişlerin hafif kapalı, “sssss” diye tıslayarak ağızdan, düzenli ve yavaş ver.","With teeth lightly closed, breathe out through your mouth with a steady, slow “sssss”."],
+ hiss3:["Nefesin bitene kadar sesi kesme. Süren kaydedilir.","Keep the sound going until your breath runs out. Your time is saved."],
+ measure:["Ölçüm","Measure"],modeMic:["Mikrofon dinlesin","Listen with microphone"],modeHand:["Elle başlat / bitir","Start / stop by hand"],
+ noteMic:["Başla’ya bas, 1 saniye sessiz kal (ortam sesi ölçülür), sonra tıslamaya başla. Ses kesilince süre kendiliğinden durur.","Press Start and stay quiet for 1 second while the room noise is measured, then start hissing. The timer stops on its own when the sound ends."],
+ noteHand:["Tıslamaya başlarken düğmeye bas, nefesin bittiğinde tekrar bas. Boşluk tuşu da çalışır.","Tap the button as you start hissing and tap again when your breath runs out. The space bar works too."],
+ sens:["Hassasiyet","Sensitivity"],progress:["Gelişimin","Your progress"],allMeas:["Tüm ölçümler","All measurements"],
+ weekGoal:["Bu haftaki hedefin","This week's goal"],goalEdit:["Hedefi değiştir","Change goal"],goalOk:["Tamam","Done"],
+ dailyLen:["Günlük süre","Daily time"],perWeek:["Haftada kaç gün","Days per week"],
+ periodRep:["Dönem raporu","Period report"],from:["Başlangıç","From"],to:["Bitiş","To"],
+ byHour:["Günün hangi saatinde","Time of day"],byWd:["Haftanın hangi gününde","Day of the week"],byEx:["Egzersizlere göre","By exercise"],
+ growth:["Süre gelişimi","Practice time trend"],growthNote:["Başladığından bu yana haftalık toplam meditasyon süren.","Your total weekly practice time since you started."],
+ perf:["Nefes performansı","Breathing performance"],sessions:["Seanslar","Sessions"],
+ prep:["Hazırlan","Get ready"],prepHint:["Rahat otur, omuzlarını bırak","Sit comfortably and let your shoulders drop"],
+ pause:["Duraklat","Pause"],resume:["Devam et","Resume"],soundOn:["Ses: açık","Sound: on"],soundOff:["Ses: kapalı","Sound: off"],
+ stop:["Bitir","End"],done:["Tamamlandı","Complete"],close:["Kapat","Close"],start:["Başla","Start"],
+ duration:["Süre","Duration"],voiceGuide:["Sesli yönlendirme","Voice guidance"],voice:["Ses","Voice"],listen:["Dinle","Preview"],
+ round:["tur","round"],sec:["sn","s"],min:["dk","min"],hr:["sa","h"],
+ customLbl:[["Al","Tut","Ver","Bekle"],["In","Hold","Out","Rest"]],
+ startSay:["Başlıyoruz. Omuzlarını gevşet, nefesini izle.","Let's begin. Relax your shoulders and notice your breath."],
+ endSay:["Seans tamamlandı. Nefesini serbest bırak ve bir an böyle kal.","Session complete. Let your breath flow freely and stay here for a moment."],
+ previewSay:["Merhaba. Burundan yavaşça nefes al… ve ağızdan sakince ver.","Hello. Breathe in slowly through your nose… and gently out through your mouth."],
+ tooShortSes:["20 saniyeden kısa seanslar kaydedilmez.","Sessions shorter than 20 seconds are not saved."],
+ hStart:["Başla","Start"],hTapEnd:["Bitince dokun","Tap when done"],hHiss:["Tısla…","Hiss…"],again:["Tekrar","Again"],
+ micOpening:["Mikrofon açılıyor…","Opening microphone…"],quiet:["Sessiz kal","Stay quiet"],
+ calibrating:["Ortam sesi ölçülüyor, 1 saniye sessiz kal…","Measuring room noise, stay quiet for 1 second…"],
+ readyBtn:["Tısla","Hiss"],readyMsg:["Hazır. Derin nefes al ve tıslamaya başla.","Ready. Take a deep breath and start hissing."],
+ listening:["Dinliyorum","Listening"],keepGoing:["Devam et, sesi kesme…","Keep going, don't stop the sound…"],
+ micFail:["Mikrofona erişilemedi; elle ölçüm açık. Tıslamaya başlarken dokun, bitince yine dokun.","Couldn't access the microphone, so manual timing is on. Tap as you start hissing and tap again when you finish."],
+ tooShortH:["2 saniyeden kısa, kaydedilmedi. Tekrar dene.","Under 2 seconds, not saved. Try again."],
+ noMeas:["Henüz ölçüm yok","No measurements yet"],noMeasNote:["İlk tıslama testini yaptığında başlangıç değerin burada görünecek.","Your starting value appears here after your first hiss test."],
+ measList:["Ölçümlerin burada listelenecek.","Your measurements will be listed here."],
+ firstDay:["İlk gün","First day"],lastDay:["Son gün","Last day"],best:["En iyi","Best"],change:["Gelişim","Change"],meas:["ölçüm","measurements"],
+ dailyBest:["Her günün en iyi süresi (saniye)","Best time of each day (seconds)"],
+ thDate:["Tarih","Date"],thTime:["Saat","Time"],thMeas:["Ölçüm","Method"],thDur:["Süre","Time"],thDay:["Gün","Day"],thEx:["Egzersiz","Exercise"],
+ thSes:["Seans","Sessions"],thDays:["Gün","Days"],thTot:["Toplam","Total"],thAvg:["Ortalama","Average"],thLast:["Son","Last"],
+ mic:["Mikrofon","Microphone"],hand:["Elle","Manual"],del:["Sil","Delete"],cancel:["Vazgeç","Cancel"],delAria:["Ölçümü sil","Delete measurement"],
+ today:["Bugün","Today"],thisWeek:["Bu hafta","This week"],days:["gün","days"],goalStripAria:["Haftalık hedefi aç","Open weekly goal"],
+ noSes:["Bu dönemde seans yok.","No sessions in this period."],
+ noSesEx:["Bu dönemde seans yok. Bir egzersizi en az 20 saniye yaptığında burada görünür.","No sessions in this period. An exercise shows up here once you do it for at least 20 seconds."],
+ sessionsWord:["seans","sessions"],
+ kTot:["Toplam süre","Total time"],kSes:["Seans","Sessions"],kAct:["Aktif gün","Active days"],kDg:["Günlük hedef","Daily goal"],kWg:["Haftalık hedef","Weekly goal"],kStreak:["Hedef serisi","Goal streak"],
+ vsPrev:["önceki döneme göre","vs previous period"],avg:["ortalama","average"],ofDays:["gün","of days"],weeks:["hafta","weeks"],weekRunning:["bu hafta sürüyor","this week in progress"],
+ longest:["en uzun","longest"],newTag:["yeni","new"],
+ chartHead:[{gun:"Günlük",hafta:"Haftalık",ay:"Aylık"},{gun:"Daily",hafta:"Weekly",ay:"Monthly"}],
+ chartNote:["toplam dakika · koyu sütun hedefe ulaşıldı, kesik çizgi hedef","total minutes · solid bar = goal reached, dashed line = goal"],
+ goalLbl:["hedef","goal"],noData:["kayıt yok","no record"],goalDone:["hedef tamam","goal met"],
+ weekOf:["haftası","week"],
+ sTot:["Haftalık süre","Weekly time"],sLen:["Seans uzunluğu","Session length"],sAll:["Toplam","Total"],single:["tek seans","single session"],
+ firstWeek:["ilk hafta","first week"],
+ perfInfo:["Tıslama testi, burundan alıp ağızdan tıslayarak verdiğin nefesin süresi.","The hiss test measures how long you can exhale with a steady hiss after a deep nose breath."],
+ pStart:["Dönem başı","Period start"],pEnd:["Dönem sonu","Period end"],pBest:["Dönemin en iyisi","Best in period"],pCh:["Dönem içi gelişim","Change in period"],
+ noHissP:["Bu dönemde tıslama testi yok. Tıslama testi sekmesinden ölçüm yapabilirsin.","No hiss tests in this period. You can measure one in the Hiss test tab."],
+ storeDb:["Kayıtların hesabında saklanıyor; Claude'daki sayfayı hangi cihazdan açarsan aynı veriyi görürsün.","Your records are saved to your account, so you see the same data on any device that opens this page in Claude."],
+ storeLocal:["Kayıtlar bu tarayıcıda saklanıyor.","Records are saved in this browser."],
+ wd:[["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"],["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]],
+ mo:[["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"],["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]],
+ parts:[["Sabah","Öğle","Akşamüstü","Akşam","Gece"],["Morning","Midday","Afternoon","Evening","Night"]],
+ per:[["Bu hafta","Geçen hafta","Bu ay","Son 30 gün","Bu yıl","Tümü","Özel aralık"],["This week","Last week","This month","Last 30 days","This year","All time","Custom range"]],
+ voices:[["Yumuşak","Sıcak","Berrak","Yuvarlak"],["Soft","Warm","Clear","Round"]],
+};
+const t=k=>{const v=I[k];return v?v[LI()]:k};
+const F={
+ meta:(r,R,rem)=>lang==="en"?`Round ${r}/${R} · ${rem}`:`Tur ${r}/${R} · ${rem}`,
+ metaPrep:(R,d)=>lang==="en"?`${R} rounds · ${d} min`:`${R} tur · ${d} dk`,
+ cycle:(c)=>lang==="en"?`round ${c} s`:`tur ${c} sn`,
+ saved:(m,s)=>lang==="en"?`${m} min ${s} s of breathing practice saved. `:`${m} dk ${s} sn nefes çalışması kaydedildi. `,
+ todayOk:(x)=>lang==="en"?`Today: ${x}. Daily goal reached.`:`Bugün ${x} yaptın, günlük hedefe ulaştın.`,
+ todayLeft:(x,g,l)=>lang==="en"?`Today: ${x} / ${g} min. ${l} to go.`:`Bugün ${x} / ${g} dk. Hedefe ${l} kaldı.`,
+ result:(s)=>lang==="en"?`This time you did ${s} seconds.`:`Bu sefer ${s} saniyede yaptın.`,
+ record:(p)=>lang==="en"?` New record! Previous best ${p} s.`:` Yeni rekor, önceki en iyi ${p} sn.`,
+ sayRes:(s)=>lang==="en"?`${s} seconds this time.`:`Bu sefer ${s} saniye.`,
+ sayRec:()=>lang==="en"?" New record!":" Yeni rekor!",
+ goalSum:(d,m)=>lang==="en"?`Weekly goal: ${d} days × ${m} min = ${d*m} min. A day counts when you practise ${m} minutes or more in total that day.`:`Haftalık hedef: ${d} gün × ${m} dk = ${d*m} dk. Bir gün, o gün toplam ${m} dakika ve üstü nefes çalışması yaptığında hedefte sayılır.`,
+ wkDone:()=>lang==="en"?"You've reached this week's goal. Every extra day is a bonus.":"Bu haftanın hedefine ulaştın. Devam ettiğin her gün bonus.",
+ wkHard:(k,e)=>lang==="en"?`${k} days left this week and ${e} more goal days needed. Do what you can and start fresh next week.`:`Bu hafta ${k} gün kaldı; hedefin ${e} gün daha. Yapabildiğin kadarını yap, gelecek hafta yeniden.`,
+ wkLeft:(e,m,k)=>lang==="en"?`Do at least ${m} min on ${e} more days to hit your goal. ${k} days left this week.`:`Hedef için ${e} gün daha en az ${m} dk yap. Haftanın bitmesine ${k} gün var.`,
+ wkSum1:(a,b)=>lang==="en"?`${a} / ${b} min`:`${a} / ${b} dk`,
+ wkSum2:(a,b)=>lang==="en"?`${a} / ${b} days on goal`:`${a} / ${b} gün hedefte`,
+ topPart:(p,r)=>lang==="en"?`You practise most in the ${lower(p)} (${r}).`:`En çok ${lower(p)} saatlerinde (${r}) çalışıyorsun.`,
+ dgSub:(m)=>lang==="en"?`days ≥ ${m} min`:`gün ≥ ${m} dk`,
+ wgSub:(d)=>lang==="en"?`weeks with ${d}+ goal days`:`hafta (${d}+ hedef günü)`,
+ firstN:(n)=>lang==="en"?`first ${n} weeks avg → last ${n} weeks avg `:`ilk ${n} hafta ort. → son ${n} hafta ort. `,
+ firstS:(n)=>lang==="en"?`first ${n} sessions → last ${n} sessions `:`ilk ${n} seans → son ${n} seans `,
+ totSub:(s,w)=>lang==="en"?`${s} sessions · ${w} weeks`:`${s} seans · ${w} hafta`,
+ sinceStart:(f,fd,b,bd,ch)=>lang==="en"?` Since you started: first measurement <b>${f} s</b> (${fd}), best <b>${b} s</b> (${bd})${ch}.`:` Başladığından bu yana: ilk ölçüm <b>${f} sn</b> (${fd}), en iyi <b>${b} sn</b> (${bd})${ch}.`,
+ custProg:(a,ap,b,bp)=>lang==="en"?`Your own rhythm: round length ${a} s (${ap}) → ${b} s (${bp}).`:`Kendi ritmin: tur süresi ${a} sn (${ap}) → ${b} sn (${bp}).`,
+};
+
+/* ---------- Egzersizler ---------- */
+const PH={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","A little more"],hold:["Tut","Hold"],out:["Nefes ver","Breathe out"],wait:["Bekle","Rest"]};
+const SAY={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","Top it up"],hold:["Nefesini tut","Hold your breath"],out:["Nefes ver","Breathe out"],wait:["Boşlukta bekle","Rest, lungs empty"]};
+const EX=[
+ {id:"kutu",ad:["Kutu nefes","Box breathing"],ds:["Odak ve sakinlik için dört eşit kenar. Sporcuların ve stres altındaki ekiplerin sevdiği temel teknik.","Four equal sides for focus and calm. A core technique loved by athletes and teams under pressure."],
+  p:[["in",4,["Burundan","Through your nose"]],["hold",4,["Dolu ciğerle","Lungs full"]],["out",4,["Ağızdan yavaşça","Slowly through your mouth"]],["wait",4,["Boş ciğerle","Lungs empty"]]],
+  nasil:[["Her kenar 4 saniye: al, tut, ver, bekle.","Omuzlar düşük, nefes karından.","Zorlanırsan 3 saniyeye in."],["Each side is 4 seconds: in, hold, out, rest.","Shoulders low, breathe from the belly.","If it feels hard, drop to 3 seconds."]]},
+ {id:"478",ad:["4-7-8 rahatlama","4-7-8 relaxation"],ds:["Uykuya geçiş ve kaygıyı yatıştırmak için. Uzun tutma ve daha uzun verme sinir sistemini yavaşlatır.","For falling asleep and easing anxiety. A long hold and longer exhale slow the nervous system down."],
+  p:[["in",4,["Burundan sessizce","Quietly through your nose"]],["hold",7,["",""]],["out",8,["Ağızdan, hafif vınlayarak","Through your mouth with a soft whoosh"]]],
+  nasil:[["Dil ucu üst ön dişlerin arkasında.","İlk günlerde 4 tur yeterli.","Başın dönerse dur, normal nefese dön."],["Rest the tip of your tongue behind your upper front teeth.","Four rounds are enough in the first days.","If you feel dizzy, stop and breathe normally."]]},
+ {id:"567",ad:["5-6-7 dengesi","5-6-7 balance"],ds:["5 saniyede al, 6 saniye tut, 7 saniyede ver. Kutu nefesten bir adım uzun, verme her zaman en uzunu.","Inhale for 5, hold for 6, exhale for 7. One step longer than box breathing, with the exhale always longest."],
+  p:[["in",5,["Burundan, karından","Through your nose, into the belly"]],["hold",6,["",""]],["out",7,["Ağızdan, kontrollü","Controlled, through your mouth"]]],
+  nasil:[["Verişi alıştan uzun tutmak gevşemeyi artırır.","Her turda süreyi eşit dağıt, sona doğru hızlanma."],["A longer exhale than inhale deepens relaxation.","Spread the breath evenly; don't speed up at the end."]]},
+ {id:"rez",ad:["Rezonans nefesi","Resonance breathing"],ds:["Dakikada yaklaşık 5,5 nefes. Kalp atım değişkenliğini artıran, günlük 5–10 dakikalık uyum nefesi.","About 5.5 breaths per minute. A daily 5–10 minute practice that raises heart rate variability."],
+  p:[["in",5.5,["Burundan, yumuşak","Softly through your nose"]],["out",5.5,["Burundan, yumuşak","Softly through your nose"]]],
+  nasil:[["Duraksamadan bir dalga gibi al ve ver.","Ses çıkarmadan, zorlamadan.","En iyi sonuç için 5 dakika ve üstü."],["Breathe in and out like a wave, without pausing.","Quietly, without forcing.","Five minutes or more works best."]]},
+ {id:"sigh",ad:["Fizyolojik iç çekiş","Physiological sigh"],ds:["Burundan iki kademeli alış, ağızdan uzun veriş. Ani gerginlikte birkaç turda rahatlatan hızlı teknik.","A two-step inhale through the nose and a long exhale through the mouth. A fast way to calm sudden stress in a few rounds."],
+  p:[["in",2,["Burundan derin","Deep through your nose"]],["in2",1,["Burundan kısa ek nefes","A short extra sip through your nose"]],["out",6,["Ağızdan, sonuna kadar","All the way out through your mouth"]]],
+  nasil:[["İkinci alış küçük bir “üstüne ekleme”.","Verişte ciğeri tamamen boşalt.","1–3 dakika yeterli."],["The second inhale is a small top-up.","Empty your lungs fully on the exhale.","1–3 minutes is enough."]]},
+ {id:"ucgen",ad:["Üçgen nefes","Triangle breathing"],ds:["Al, tut, ver. Kutu nefesin beklemesiz hali; yeni başlayanlar için rahat bir giriş.","In, hold, out. Box breathing without the empty rest; an easy start for beginners."],
+  p:[["in",4,["Burundan","Through your nose"]],["hold",4,["",""]],["out",4,["Ağızdan","Through your mouth"]]],
+  nasil:[["Üç kenar eşit.","Rahatladıkça 5-5-5'e çıkabilirsin."],["All three sides are equal.","Move up to 5-5-5 as it gets easy."]]},
+ {id:"uzun",ad:["Uzun veriş (4-8)","Long exhale (4-8)"],ds:["Verişi alışın iki katı yap. Toplantı öncesi ya da sinirliyken nabzı indirmek için.","Make the exhale twice as long as the inhale. Brings your pulse down before a meeting or when you're upset."],
+  p:[["in",4,["Burundan","Through your nose"]],["out",8,["Büzük dudaklarla, ağızdan","Through pursed lips"]]],
+  nasil:[["Dudakları mum üfler gibi büz.","Veriş akışı başından sonuna eşit olsun."],["Purse your lips as if blowing out a candle.","Keep the flow even from start to finish."]]},
+ {id:"esit",ad:["Eşit nefes (Sama Vritti)","Equal breathing (Sama Vritti)"],ds:["Yoga geleneğinden: alış ve veriş eşit uzunlukta. Zihni dengelemek ve meditasyona hazırlanmak için.","From the yoga tradition: inhale and exhale of equal length. Balances the mind and prepares you for meditation."],
+  p:[["in",4,["Burundan","Through your nose"]],["out",4,["Burundan","Through your nose"]]],
+  nasil:[["Burundan al, burundan ver.","Rahatsa her iki yönü 5–6 saniyeye uzat."],["In through the nose, out through the nose.","If comfortable, lengthen both to 5–6 seconds."]]},
+ {id:"ari",ad:["Arı nefesi (Bhramari)","Bee breath (Bhramari)"],ds:["Nefes verirken ağız kapalı “mmmm” diye vızılda. Titreşim baş bölgesini gevşetir, düşünce trafiğini azaltır.","Hum “mmmm” with your mouth closed as you exhale. The vibration relaxes the head and quiets busy thoughts."],
+  p:[["in",4,["Burundan","Through your nose"]],["out",8,["Ağız kapalı, “mmmm” vızıltısıyla","Mouth closed, humming “mmmm”"]]],
+  nasil:[["Dudaklar kapalı, dişler hafif aralık.","İstersen işaret parmaklarınla kulak kepçelerini kapat.","Sessiz bir yerde dene."],["Lips closed, teeth slightly apart.","You can gently close your ears with your index fingers.","Try it somewhere quiet."]]},
+ {id:"diyafram",ad:["Diyafram nefesi","Diaphragmatic breathing"],ds:["Bir el göğüste, bir el karında. Sadece karın elinin hareket etmesini hedefleyen temel teknik; tıslama testine de hazırlar.","One hand on your chest, one on your belly; only the belly hand should move. A foundation that also prepares you for the hiss test."],
+  p:[["in",4,["Burundan, karın şişsin","Through your nose, belly rises"]],["hold",2,["",""]],["out",6,["Ağızdan, karın içeri","Through your mouth, belly falls"]]],
+  nasil:[["Göğüs eli neredeyse sabit kalsın.","Verişin sonunda karnı hafifçe içeri çek."],["Keep the chest hand almost still.","At the end of the exhale, draw your belly gently in."]]},
+ {id:"ozel",ad:["Kendi ritmin","Your own rhythm"],ds:["Süreleri sen belirle. 0 yazdığın aşama atlanır.","Set your own timings. Any phase set to 0 is skipped."],
+  p:[["in",5,["Burundan","Through your nose"]],["hold",6,["",""]],["out",7,["Ağızdan","Through your mouth"]],["wait",0,["",""]]],
+  nasil:[["Al, tut, ver, bekle sürelerini yaz.","Ayarın bu cihazda hatırlanır."],["Enter your in, hold, out and rest times.","Your setting is remembered on this device."]],ozel:true}
+];
+const exName=(id,fb)=>{const e=EX.find(x=>x.id===id);return e?X(e.ad):(fb||id)};
+const SURE=[1,3,5,10,15];
+const fmt=(n,d=1)=>Number(n).toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d});
 const phColor=k=>k==="in2"?"in":k;
 
 /* ---------- Depolama: db varsa orada, yoksa bu tarayıcıda ---------- */
-const store={db:null,hiss:ls.get("hiss",[]),ses:ls.get("ses",[])};
+const store={db:null,hiss:ls.get("hiss",[]),ses:ls.get("ses",[]),ayar:Object.assign({gunDk:10,haftaGun:5},ls.get("ayar",{}))};
 async function initDb(){
   try{
     if(!window.claude||!window.claude.use)return;
@@ -308,6 +484,10 @@ async function initDb(){
     store.hiss=mh;store.ses=mss;
     if(ch)await save("hiss");
     if(cs)await save("ses");
+    const as=await db.doc("kayit/ayarlar").get();
+    const ad=as&&as.exists?as.data():null;
+    if(ad&&ad.gunDk){store.ayar={gunDk:+ad.gunDk,haftaGun:+ad.haftaGun||5};ls.set("ayar",store.ayar)}
+    else if(ls.get("ayar",null))await save("ayar");
     renderAll();
   }catch(e){console.warn("db yok",e)}
 }
@@ -315,31 +495,48 @@ let saving=Promise.resolve();
 function save(which){
   ls.set(which,store[which]);
   if(!store.db)return Promise.resolve();
-  const path=which==="hiss"?"kayit/tislama":"kayit/seanslar";
-  saving=saving.then(()=>store.db.doc(path).set({list:store[which]})).catch(e=>console.warn("kayıt",e));
+  const path={hiss:"kayit/tislama",ses:"kayit/seanslar",ayar:"kayit/ayarlar"}[which];
+  const body=which==="ayar"?Object.assign({},store.ayar):{list:store[which]};
+  saving=saving.then(()=>store.db.doc(path).set(body)).catch(e=>console.warn("kayıt",e));
   return saving;
 }
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
-/* ---------- Ses ---------- */
+/* ---------- Ses: zil + sesli yönlendirme ---------- */
 let actx=null, soundOn=ls.get("sound",true), voiceOn=ls.get("voice",true), tts=null;
+const TTSV=["airy","buttery","glassy","rounded"];
+let ttsVoice=ls.get("ttsv","airy");
 function ac(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(actx&&actx.state==="suspended")actx.resume();return actx}
 function bell(k){
   if(!soundOn)return;const a=ac();if(!a)return;
   const f={in:528,in2:660,hold:396,out:330,wait:264,end:440}[k]||440;
-  const t=a.currentTime,o=a.createOscillator(),g=a.createGain(),o2=a.createOscillator(),g2=a.createGain();
+  const vol=voiceOn?.12:.22;
+  const t0=a.currentTime,o=a.createOscillator(),g=a.createGain(),o2=a.createOscillator(),g2=a.createGain();
   o.type="sine";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2.01;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+1.6);
-  g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(.05,t+.02);g2.gain.exponentialRampToValueAtTime(.001,t+.9);
-  o.connect(g).connect(a.destination);o2.connect(g2).connect(a.destination);o.start(t);o2.start(t);o.stop(t+1.7);o2.stop(t+1);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.03);g.gain.exponentialRampToValueAtTime(.001,t0+1.8);
+  g2.gain.setValueAtTime(0,t0);g2.gain.linearRampToValueAtTime(vol/4,t0+.03);g2.gain.exponentialRampToValueAtTime(.001,t0+.9);
+  o.connect(g).connect(a.destination);o2.connect(g2).connect(a.destination);o.start(t0);o2.start(t0);o.stop(t0+1.9);o2.stop(t0+1);
 }
-function say(text){
-  if(!soundOn||!voiceOn)return;
-  if(tts){tts.speak(text,{language:"tr",rate:1}).catch(()=>{});return}
-  try{if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="tr-TR";u.rate=.95;speechSynthesis.speak(u)}}catch(e){}
+// Tarayıcı sesleri: bu dil için en doğal sesi seç
+function ssVoices(){try{return speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(lang))}catch(e){return[]}}
+function voiceScore(v){let s=0;const n=v.name;if(/natural/i.test(n))s+=6;if(/neural|online|enhanced|premium/i.test(n))s+=4;if(/google/i.test(n))s+=3;
+  if(/emel|ahmet|yelda|seda|filiz|aria|jenny|sonia|libby|samantha|serena|daniel|karen/i.test(n))s+=2;if(v.localService===false)s+=1;return s}
+function pickSS(){const vs=ssVoices();if(!vs.length)return null;const saved=ls.get("ssv-"+lang,"");return vs.find(v=>v.name===saved)||vs.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]}
+function say(text,force){
+  if(!force&&(!soundOn||!voiceOn))return;
+  if(tts){tts.speak(text,{language:lang,voice:ttsVoice,rate:.9}).catch(()=>{});return}
+  try{if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickSS();if(v)u.voice=v;u.lang=v?v.lang:(lang==="en"?"en-GB":"tr-TR");u.rate=.88;u.pitch=1;u.volume=1;speechSynthesis.speak(u)}}catch(e){}
 }
-(async()=>{try{if(window.claude&&window.claude.use){tts=await window.claude.use("tts")}}catch(e){}})();
+function hush(){try{tts&&tts.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}
+(async()=>{try{if(window.claude&&window.claude.use){tts=await window.claude.use("tts");if(tts&&cur&&!$("#setup").hidden)openSetup(cur.id)}}catch(e){}})();
+try{speechSynthesis.addEventListener("voiceschanged",()=>{if(cur&&!$("#setup").hidden)openSetup(cur.id)})}catch(e){}
 function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function voicePicker(){
+  if(tts)return `<div class="chips" id="vchips">${TTSV.map((v,i)=>`<button class="chip" data-tv="${v}" aria-pressed="${v===ttsVoice}">${t("voices")[i]}</button>`).join("")}</div>`;
+  const vs=ssVoices(); if(!vs.length)return "";
+  const sel=pickSS();
+  return `<select class="vsel" id="vsel" aria-label="${t("voice")}">${vs.slice().sort((a,b)=>voiceScore(b)-voiceScore(a)).map(v=>`<option value="${esc(v.name)}" ${sel&&v.name===sel.name?"selected":""}>${esc(v.name.replace(/^Microsoft |^Google /,""))}</option>`).join("")}</select>`;
+}
 
 /* ---------- Sekmeler ---------- */
 const views=["egzersiz","tislama","gecmis"];
@@ -370,32 +567,38 @@ function patternOf(e){
 }
 function renderList(){
   $("#exlist").innerHTML=EX.map(e=>{const p=patternOf(e);return `<button class="ex" data-id="${e.id}">
-    <span class="nm">${esc(e.ad)}</span>${rhythmHTML(p)}<span class="nums">${numsTxt(p)} sn</span><span class="ds">${esc(e.ds)}</span></button>`}).join("");
-  document.querySelectorAll(".ex").forEach(b=>b.addEventListener("click",()=>openSetup(b.dataset.id)));
+    <span class="nm">${esc(X(e.ad))}</span>${rhythmHTML(p)}<span class="nums">${numsTxt(p)} ${t("sec")}</span><span class="ds">${esc(X(e.ds))}</span></button>`}).join("");
+  document.querySelectorAll(".ex").forEach(b=>b.addEventListener("click",()=>openSetup(b.dataset.id,true)));
 }
 let cur=null, dur=ls.get("dur",3);
-function openSetup(id){
+function openSetup(id,scroll){
   cur=EX.find(e=>e.id===id); const p=patternOf(cur);
   const cyc=p.reduce((s,x)=>s+x[1],0);
   const s=$("#setup"); s.hidden=false;
-  s.innerHTML=`<div class="row" style="justify-content:space-between"><h2>${esc(cur.ad)}</h2><span class="nums">${numsTxt(p)} sn · tur ${fmt(cyc,cyc%1?1:0)} sn</span></div>
+  const vp=voicePicker();
+  s.innerHTML=`<div class="row" style="justify-content:space-between"><h2>${esc(X(cur.ad))}</h2><span class="nums">${numsTxt(p)} ${t("sec")} · ${F.cycle(fmt(cyc,cyc%1?1:0))}</span></div>
    ${rhythmHTML(p)}
-   <p>${esc(cur.ds)}</p>
-   ${cur.ozel?`<div class="custom">${["Al","Tut","Ver","Bekle"].map((n,i)=>`<label for="oz${i}">${n} (sn)<input id="oz${i}" type="number" min="0" max="30" step="0.5" value="${p[i][1]}"></label>`).join("")}</div>`:""}
-   <ul class="howto">${cur.nasil.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
-   <div class="row"><span class="lbl">Süre</span><div class="chips" id="durchips">${SURE.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===dur}">${d} dk</button>`).join("")}</div></div>
+   <p>${esc(X(cur.ds))}</p>
+   ${cur.ozel?`<div class="custom">${t("customLbl").map((n,i)=>`<label for="oz${i}">${n} (${t("sec")})<input id="oz${i}" type="number" min="0" max="30" step="0.5" value="${p[i][1]}"></label>`).join("")}</div>`:""}
+   <ul class="howto">${X(cur.nasil).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+   <div class="row"><span class="lbl">${t("duration")}</span><div class="chips" id="durchips">${SURE.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===dur}">${d} ${t("min")}</button>`).join("")}</div></div>
    <div class="row">
-     <label class="switch" for="vo"><input type="checkbox" id="vo" ${voiceOn?"checked":""}> Sesli yönlendirme</label>
+     <label class="switch" for="vo"><input type="checkbox" id="vo" ${voiceOn?"checked":""}> ${t("voiceGuide")}</label>
    </div>
-   <div class="row"><button class="btn pri" id="go">Başla</button><button class="btn ghost" id="cx">Kapat</button></div>`;
+   ${vp?`<div class="row" id="vrow" ${voiceOn?"":"hidden"}><span class="lbl">${t("voice")}</span>${vp}<button class="btn small ghost" id="vtest">${t("listen")}</button></div>`:""}
+   <div class="row"><button class="btn pri" id="go">${t("start")}</button><button class="btn ghost" id="cx">${t("close")}</button></div>`;
   s.querySelectorAll("#durchips .chip").forEach(c=>c.addEventListener("click",()=>{dur=+c.dataset.d;ls.set("dur",dur);
     s.querySelectorAll("#durchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"))}));
   if(cur.ozel)s.querySelectorAll(".custom input").forEach(inp=>inp.addEventListener("change",()=>{
     ls.set("ozel",[0,1,2,3].map(i=>+$("#oz"+i).value||0));renderList();openSetup("ozel")}));
-  $("#vo").addEventListener("change",e=>{voiceOn=e.target.checked;ls.set("voice",voiceOn)});
+  $("#vo").addEventListener("change",e=>{voiceOn=e.target.checked;ls.set("voice",voiceOn);const r=$("#vrow");if(r)r.hidden=!voiceOn});
+  s.querySelectorAll("#vchips .chip").forEach(c=>c.addEventListener("click",()=>{ttsVoice=c.dataset.tv;ls.set("ttsv",ttsVoice);
+    s.querySelectorAll("#vchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"));say(t("previewSay"),true)}));
+  const vs=$("#vsel"); if(vs)vs.addEventListener("change",()=>{ls.set("ssv-"+lang,vs.value);say(t("previewSay"),true)});
+  const vt=$("#vtest"); if(vt)vt.addEventListener("click",()=>{ac();say(t("previewSay"),true)});
   $("#cx").addEventListener("click",()=>{s.hidden=true});
   $("#go").addEventListener("click",()=>{ac();start(cur)});
-  s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
+  if(scroll)s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
 }
 
 /* ---------- Seans motoru ---------- */
@@ -407,48 +610,55 @@ function start(e){
   const cyc=p.reduce((s,x)=>s+x[1],0);
   const rounds=Math.max(1,Math.round(dur*60/cyc));
   S={e,p,cyc,rounds,round:1,idx:-1,phaseStart:0,paused:false,pauseAt:0,prep:3,begin:performance.now(),elapsed:0,scale:.55,from:.55};
-  $("#s-ttl").textContent=e.ad;
+  $("#s-ttl").textContent=X(e.ad);
   $("#session").hidden=false;$("#s-done").hidden=true;$("#s-controls").hidden=false;
-  $("#s-pause").textContent="Duraklat";$("#s-sound").textContent="Ses: "+(soundOn?"açık":"kapalı");
+  $("#s-pause").textContent=t("pause");$("#s-sound").textContent=soundOn?t("soundOn"):t("soundOff");
   document.body.style.overflow="hidden";
   lockWake();
-  setPh("wait"); $("#s-phase").textContent="Hazırlan"; $("#s-hint").textContent="Rahat otur, omuzlarını bırak";
+  setPh("wait"); $("#s-phase").textContent=t("prep"); $("#s-hint").textContent=t("prepHint");
+  say(t("startSay"));
   cancelAnimationFrame(raf); raf=requestAnimationFrame(tick);
 }
 function setPh(k){$("#stage").style.setProperty("--phc",`var(--${phColor(k)})`)}
+function spoken(k,h,len){
+  const base=X(SAY[k]);
+  // İlk turda tam cümle (ipucuyla), sonraki turlarda kısa ve sakin komut
+  if(S.round===1&&h&&len>=3)return base+", "+lower(h)+".";
+  return base+".";
+}
 function nextPhase(now){
   S.idx++;
   if(S.idx>=S.p.length){S.idx=0;S.round++; if(S.round>S.rounds){finish(true);return false}}
-  const [k,,h]=S.p[S.idx];
+  const [k,len,hh]=S.p[S.idx], h=X(hh);
   S.phaseStart=now; S.from=S.scale;
-  setPh(k);$("#s-phase").textContent=L[k];$("#s-hint").textContent=h||"";
-  bell(k); say(L[k]); vib(k==="hold"||k==="wait"?40:80);
+  setPh(k);$("#s-phase").textContent=X(PH[k]);$("#s-hint").textContent=h||"";
+  bell(k); say(spoken(k,h,len)); vib(k==="hold"||k==="wait"?40:80);
   return true;
 }
 function target(k){return k==="in"?1:k==="in2"?1.1:k==="out"?.55:null}
-const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+const clock=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
 function tick(now){
   if(!S)return;
   if(S.paused){raf=requestAnimationFrame(tick);return}
   const ring=$("#ring");
   if(S.prep>0){
-    const el=(now-S.begin)/1000, left=3-el;
-    if(left<=0){S.prep=0;S.idx=-1;S.sessionStart=now;nextPhase(now)}
-    else{$("#s-count").textContent=Math.ceil(left);ring.style.strokeDashoffset=301.6*(1-el/3);
-      $("#s-meta").textContent=`${S.rounds} tur · ${dur} dk`}
+    const el=(now-S.begin)/1000, left=3.5-el;
+    if(left<=0){S.prep=0;S.idx=-1;nextPhase(now)}
+    else{$("#s-count").textContent=Math.ceil(Math.min(3,left));ring.style.strokeDashoffset=301.6*(1-el/3.5);
+      $("#s-meta").textContent=F.metaPrep(S.rounds,dur)}
     raf=requestAnimationFrame(tick);return;
   }
   const [k,len]=S.p[S.idx];
-  const t=(now-S.phaseStart)/1000;
-  if(t>=len){ if(!nextPhase(S.phaseStart+len*1000))return; raf=requestAnimationFrame(tick);return}
-  const fr=t/len, tg=target(k);
+  const tt=(now-S.phaseStart)/1000;
+  if(tt>=len){ if(!nextPhase(S.phaseStart+len*1000))return; raf=requestAnimationFrame(tick);return}
+  const fr=tt/len, tg=target(k);
   if(tg!=null)S.scale=S.from+(tg-S.from)*ease(fr);
   $("#orb").style.transform=`scale(${S.scale.toFixed(4)})`;
   ring.style.strokeDashoffset=(301.6*(1-fr)).toFixed(2);
-  $("#s-count").textContent=Math.max(1,Math.ceil(len-t));
-  const done=((S.round-1)*S.cyc+S.p.slice(0,S.idx).reduce((s,x)=>s+x[1],0)+t);
-  const rem=Math.max(0,S.rounds*S.cyc-done);
-  $("#s-meta").textContent=`Tur ${S.round}/${S.rounds} · ${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}`;
+  $("#s-count").textContent=Math.max(1,Math.ceil(len-tt));
+  const done=((S.round-1)*S.cyc+S.p.slice(0,S.idx).reduce((s,x)=>s+x[1],0)+tt);
+  $("#s-meta").textContent=F.meta(S.round,S.rounds,clock(Math.max(0,S.rounds*S.cyc-done)));
   S.elapsed=done;
   raf=requestAnimationFrame(tick);
 }
@@ -457,22 +667,24 @@ function finish(complete){
   if(!S)return;
   const sec=Math.round(S.elapsed||0);
   if(sec>=20){
-    store.ses.push({id:uid(),t:new Date().toISOString(),egz:S.e.id,ad:S.e.ad,sn:sec,tur:complete?S.rounds:S.round-1});
-    save("ses");renderSes();
+    store.ses.push({id:uid(),t:new Date().toISOString(),egz:S.e.id,ad:X(S.e.ad),sn:sec,tur:complete?S.rounds:S.round-1,cyc:S.cyc,ptn:numsTxt(S.p)});
+    save("ses");renderRapor();
   }
-  bell("end"); if(complete)say("Tamamlandı. Normal nefesine dön.");
+  const bug=daySecs(store.ses).get(dk(new Date()))||0, hedef=store.ayar.gunDk*60;
+  bell("end"); if(complete)say(t("endSay")); else hush();
   $("#s-controls").hidden=true;$("#s-done").hidden=false;
-  $("#s-sum").textContent=sec>=20?`${Math.floor(sec/60)} dk ${sec%60} sn nefes çalışması kaydedildi.`:"20 saniyeden kısa seanslar kaydedilmez.";
+  $("#s-sum").textContent=(sec>=20?F.saved(Math.floor(sec/60),sec%60):t("tooShortSes")+" ")
+    +(bug>=hedef?F.todayOk(ztxt(bug)):F.todayLeft(ztxt(bug),store.ayar.gunDk,ztxt(hedef-bug)));
   $("#s-phase").textContent="";$("#s-count").textContent="";$("#s-hint").textContent="";
   $("#orb").style.transform="scale(.55)";$("#ring").style.strokeDashoffset=301.6;
   S=null; try{wake&&wake.release()}catch(e){} wake=null;
 }
 $("#s-pause").addEventListener("click",()=>{
   if(!S)return; const now=performance.now();
-  if(!S.paused){S.paused=true;S.pauseAt=now;$("#s-pause").textContent="Devam et";try{speechSynthesis.cancel()}catch(e){}}
-  else{const d=now-S.pauseAt;S.phaseStart+=d;S.begin+=d;S.paused=false;$("#s-pause").textContent="Duraklat"}
+  if(!S.paused){S.paused=true;S.pauseAt=now;$("#s-pause").textContent=t("resume");hush()}
+  else{const d=now-S.pauseAt;S.phaseStart+=d;S.begin+=d;S.paused=false;$("#s-pause").textContent=t("pause")}
 });
-$("#s-sound").addEventListener("click",()=>{soundOn=!soundOn;ls.set("sound",soundOn);$("#s-sound").textContent="Ses: "+(soundOn?"açık":"kapalı")});
+$("#s-sound").addEventListener("click",()=>{soundOn=!soundOn;ls.set("sound",soundOn);$("#s-sound").textContent=soundOn?t("soundOn"):t("soundOff");if(!soundOn)hush()});
 $("#s-stop").addEventListener("click",()=>finish(false));
 $("#s-close").addEventListener("click",()=>{$("#session").hidden=true;document.body.style.overflow=""});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S&&!wake)lockWake()});
@@ -484,21 +696,19 @@ sensEl.addEventListener("input",()=>{ls.set("sens",+sensEl.value);placeThr()});
 function setMode(m){
   mode=m;ls.set("mode",m);
   document.querySelectorAll("#modechips .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.m===m?"true":"false"));
-  $("#modenote").textContent=m==="mic"
-   ?"Başla’ya bas, 1 saniye sessiz kal (ortam sesi ölçülür), sonra tıslamaya başla. Ses kesilince süre kendiliğinden durur."
-   :"Tıslamaya başlarken düğmeye bas, nefesin bittiğinde tekrar bas. Boşluk tuşu da çalışır.";
+  $("#modenote").textContent=m==="mic"?t("noteMic"):t("noteHand");
   $("#meter").hidden=m!=="mic";$("#sensrow").hidden=m!=="mic";
   resetHiss();
 }
 document.querySelectorAll("#modechips .chip").forEach(c=>c.addEventListener("click",()=>{micStop();setMode(c.dataset.m)}));
 function prepHiss(){setMode(mode)}
-function resetHiss(){H={state:"idle"};$("#hissbtn").classList.remove("live");$("#hisst").textContent="0,0";
-  $("#hisslbl").textContent="Başla";$("#hissstatus").textContent="";}
+function resetHiss(){H={state:"idle"};$("#hissbtn").classList.remove("live");$("#hisst").textContent=fmt(0);
+  $("#hisslbl").textContent=t("hStart");$("#hissstatus").textContent="";}
 function hissClick(){
   ac();
   if(mode==="elle"){
-    if(H.state!=="run"){H={state:"run",t0:performance.now()};$("#hissbtn").classList.add("live");$("#hisslbl").textContent="Bitince dokun";
-      $("#hissstatus").textContent="Tısla…";bell("in");hissLoop()}
+    if(H.state!=="run"){H={state:"run",t0:performance.now()};$("#hissbtn").classList.add("live");$("#hisslbl").textContent=t("hTapEnd");
+      $("#hissstatus").textContent=t("hHiss");bell("in");hissLoop()}
     else{const sn=(performance.now()-H.t0)/1000;H.state="idle";record(sn,"elle")}
     return;
   }
@@ -508,7 +718,7 @@ function hissClick(){
 }
 $("#hissbtn").addEventListener("click",hissClick);
 document.addEventListener("keydown",e=>{
-  if(e.code==="Space"&&!$("#v-tislama").hidden&&$("#session").hidden&&!/INPUT|BUTTON/.test(document.activeElement.tagName)){e.preventDefault();hissClick()}
+  if(e.code==="Space"&&!$("#v-tislama").hidden&&$("#session").hidden&&!/INPUT|BUTTON|SELECT/.test(document.activeElement.tagName)){e.preventDefault();hissClick()}
 });
 function hissLoop(){
   if(H.state!=="run"||mode!=="elle")return;
@@ -516,7 +726,7 @@ function hissLoop(){
   requestAnimationFrame(hissLoop);
 }
 async function micStart(){
-  $("#hissstatus").textContent="Mikrofon açılıyor…";
+  $("#hissstatus").textContent=t("micOpening");
   try{
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("yok");
     const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
@@ -525,16 +735,15 @@ async function micStart(){
     const bins=new Float32Array(an.frequencyBinCount), hz=a.sampleRate/an.fftSize;
     const lo=Math.floor(2500/hz), hi=Math.min(bins.length-1,Math.floor(10000/hz));
     mic={stream,an,bins,lo,hi,floor:-90,cal:[],t0:performance.now()};
-    H={state:"cal"};$("#hissbtn").classList.remove("live");$("#hisslbl").textContent="Sessiz kal";
-    $("#hissstatus").textContent="Ortam sesi ölçülüyor, 1 saniye sessiz kal…";
+    H={state:"cal"};$("#hissbtn").classList.remove("live");$("#hisslbl").textContent=t("quiet");
+    $("#hissstatus").textContent=t("calibrating");
     micLoop();
   }catch(e){
-    $("#hissstatus").textContent="Mikrofona erişilemedi. Bu görünüm mikrofona izin vermiyor olabilir; elle ölçüme geçildi.";
-    setMode("elle"); $("#hissstatus").textContent="Mikrofona erişilemedi; elle ölçüm açık. Tıslamaya başlarken dokun, bitince yine dokun.";
+    setMode("elle"); $("#hissstatus").textContent=t("micFail");
   }
 }
 function micStop(){
-  if(mic){try{mic.stream.getTracks().forEach(t=>t.stop())}catch(e){} mic=null}
+  if(mic){try{mic.stream.getTracks().forEach(x=>x.stop())}catch(e){} mic=null}
   if(H.state==="cal"||H.state==="arm"||H.state==="run")resetHiss();
 }
 function level(){
@@ -551,9 +760,9 @@ function micLoop(){
   if(H.state==="cal"){
     mic.cal.push(lv);
     if(now-mic.t0>1100){const srt=mic.cal.slice().sort((a,b)=>a-b);mic.floor=srt[Math.floor(srt.length*.8)]||-90;placeThr();
-      H={state:"arm",above:0};$("#hisslbl").textContent="Tısla";$("#hissstatus").textContent="Hazır. Derin nefes al ve tıslamaya başla.";bell("in")}
+      H={state:"arm",above:0};$("#hisslbl").textContent=t("readyBtn");$("#hissstatus").textContent=t("readyMsg");bell("in")}
   }else if(H.state==="arm"){
-    if(lv>thr()){H.above=H.above||now; if(now-H.above>150){H={state:"run",t0:H.above,last:now};$("#hissbtn").classList.add("live");$("#hisslbl").textContent="Dinliyorum";$("#hissstatus").textContent="Devam et, sesi kesme…"}}
+    if(lv>thr()){H.above=H.above||now; if(now-H.above>150){H={state:"run",t0:H.above,last:now};$("#hissbtn").classList.add("live");$("#hisslbl").textContent=t("listening");$("#hissstatus").textContent=t("keepGoing")}}
     else H.above=0;
   }else if(H.state==="run"){
     if(lv>thr()-2)H.last=now;
@@ -564,78 +773,282 @@ function micLoop(){
   requestAnimationFrame(micLoop);
 }
 function record(sn,how){
-  if(mic){try{mic.stream.getTracks().forEach(t=>t.stop())}catch(e){} mic=null}
+  if(mic){try{mic.stream.getTracks().forEach(x=>x.stop())}catch(e){} mic=null}
   sn=Math.round(sn*10)/10;
   $("#hissbtn").classList.remove("live");
-  if(sn<2){H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent="Tekrar";
-    $("#hissstatus").textContent="2 saniyeden kısa, kaydedilmedi. Tekrar dene.";return}
+  if(sn<2){H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent=t("again");
+    $("#hissstatus").textContent=t("tooShortH");return}
   const prevBest=store.hiss.reduce((m,x)=>Math.max(m,x.sn),0);
   store.hiss.push({id:uid(),t:new Date().toISOString(),sn,mod:how});
   save("hiss");
-  H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent="Tekrar";
+  H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent=t("again");
   bell("end"); vib(120);
-  $("#hissstatus").textContent=`Bu sefer ${fmt(sn)} saniyede yaptın.`+(prevBest&&sn>prevBest?` Yeni rekor, önceki en iyi ${fmt(prevBest)} sn.`:"");
-  say(`Bu sefer ${fmt(sn)} saniye`);
-  renderHiss();
+  const rec=prevBest&&sn>prevBest;
+  $("#hissstatus").textContent=F.result(fmt(sn))+(rec?F.record(fmt(prevBest)):"");
+  say(F.sayRes(fmt(sn))+(rec?F.sayRec():""));
+  renderHiss();renderRapor();
 }
 
-/* ---------- Gelişim ---------- */
+/* ---------- Tarih yardımcıları ---------- */
 const day=iso=>{const d=new Date(iso);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-const dayTR=k=>{const [y,m,d]=k.split("-");return `${+d}.${+m}.${y}`};
-const timeTR=iso=>new Date(iso).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+const dayTR=k=>{const [y,m,d]=k.split("-");return lang==="en"?`${+d}/${+m}/${y}`:`${+d}.${+m}.${y}`};
+const dayShort=k=>dayTR(k).slice(0,-5);
+const timeTR=iso=>new Date(iso).toLocaleTimeString(loc(),{hour:"2-digit",minute:"2-digit"});
+const dk=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const sod=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const monOf=d=>{const x=sod(d);return addD(x,-((x.getDay()+6)%7))};
+const dayDiff=(a,b)=>Math.round((sod(b)-sod(a))/864e5);
+function ztxt(s){s=Math.round(s);if(s<=0)return "0 "+t("min");if(s<60)return s+" "+t("sec");const m=Math.round(s/60);return m<120?m+" "+t("min"):Math.floor(m/60)+" "+t("hr")+(m%60?" "+m%60+" "+t("min"):"")}
+function daySecs(list){const m=new Map();list.forEach(x=>{const k=day(x.t);m.set(k,(m.get(k)||0)+x.sn)});return m}
+const inR=(iso,a,b)=>{const d=new Date(iso);return d>=a&&d<b};
+const pctTxt=(a,b)=>b>0?(lang==="en"?Math.round(a/b*100)+"%":"%"+Math.round(a/b*100)):"–";
+
+/* ---------- Tıslama gelişimi ---------- */
 let pendingDel=null;
 function renderHiss(){
   const L2=store.hiss;
   if(!L2.length){
-    $("#hstats").innerHTML=`<div class="stat" style="grid-column:1/-1"><div class="k">Henüz ölçüm yok</div><div class="note">İlk tıslama testini yaptığında başlangıç değerin burada görünecek.</div></div>`;
-    $("#hchart").innerHTML="";$("#hlist").innerHTML=`<div class="empty">Ölçümlerin burada listelenecek.</div>`;return;
+    $("#hstats").innerHTML=`<div class="stat" style="grid-column:1/-1"><div class="k">${t("noMeas")}</div><div class="note">${t("noMeasNote")}</div></div>`;
+    $("#hchart").innerHTML="";$("#hlist").innerHTML=`<div class="empty">${t("measList")}</div>`;return;
   }
   const by=new Map(); L2.forEach(x=>{const k=day(x.t);by.set(k,Math.max(by.get(k)||0,x.sn))});
   const days=[...by.keys()].sort(); const first=by.get(days[0]), last=by.get(days[days.length-1]);
   const best=Math.max(...L2.map(x=>x.sn)); const ch=first?((last-first)/first*100):0;
+  const sx=" "+t("sec");
   $("#hstats").innerHTML=[
-    ["İlk gün",fmt(first)+" sn",dayTR(days[0])],
-    ["Son gün",fmt(last)+" sn",dayTR(days[days.length-1])],
-    ["En iyi",fmt(best)+" sn",L2.length+" ölçüm"],
-    ["Gelişim",(ch>0?"+":"")+fmt(ch,0)+"%",(last-first>=0?"+":"")+fmt(last-first)+" sn"]
+    [t("firstDay"),fmt(first)+sx,dayTR(days[0])],
+    [t("lastDay"),fmt(last)+sx,dayTR(days[days.length-1])],
+    [t("best"),fmt(best)+sx,L2.length+" "+t("meas")],
+    [t("change"),(ch>0?"+":"")+fmt(ch,0)+"%",(last-first>=0?"+":"")+fmt(last-first)+sx]
   ].map((s,i)=>`<div class="stat"><div class="k">${s[0]}</div><div class="v ${i===3?(ch>0?"up":ch<0?"down":""):""}">${s[1]}</div><div class="note">${s[2]}</div></div>`).join("");
-  // Grafik: günün en iyisi
-  const W=640,Hh=220,pl=40,pr=16,pt=14,pb=30;
-  const vals=days.map(k=>by.get(k)); const mx=Math.max(10,Math.ceil(Math.max(...vals)/10)*10);
-  const x=i=>days.length===1?pl+(W-pl-pr)/2:pl+i*(W-pl-pr)/(days.length-1);
-  const y=v=>pt+(Hh-pt-pb)*(1-v/mx);
-  let g="";
-  for(let i=0;i<=4;i++){const v=mx*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(v,0)}</text>`}
-  const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
-  const area=days.length>1?`<path d="M${x(0)},${y(0)} L${pts.join(" L")} L${x(days.length-1)},${y(0)} Z" fill="var(--accent)" opacity=".12"/>`:"";
-  const line=days.length>1?`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>`:"";
-  const step=Math.max(1,Math.ceil(days.length/6));
-  const lab=days.map((k,i)=>(i%step===0||i===days.length-1)?`<text x="${x(i)}" y="${Hh-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${dayTR(k).slice(0,-5)}</text>`:"").join("");
-  const dots=vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${i===vals.length-1?5:3}" fill="${i===vals.length-1?"var(--accent)":"var(--surface)"}" stroke="var(--accent)" stroke-width="2"><title>${dayTR(days[i])}: ${fmt(v)} sn</title></circle>`).join("");
-  const lastLab=`<text x="${Math.min(x(vals.length-1),W-pr-4)}" y="${y(last)-10}" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)">${fmt(last)} sn</text>`;
-  $("#hchart").innerHTML=`<div class="note" style="margin-bottom:6px">Her günün en iyi süresi (saniye)</div><svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Günlük en iyi tıslama süresi">${g}${area}${line}${dots}${lab}${lastLab}</svg>`;
-  // Liste
-  const rows=L2.slice().reverse().map(r=>`<tr><td>${dayTR(day(r.t))}</td><td>${timeTR(r.t)}</td><td>${r.mod==="mic"?"Mikrofon":"Elle"}</td><td class="r"><b>${fmt(r.sn)}</b> sn${r.sn===best?" ★":""}</td>
-    <td class="r">${pendingDel===r.id?`<span class="confirm"><button class="btn small" data-del="${r.id}">Sil</button><button class="btn small ghost" data-cancel="1">Vazgeç</button></span>`:`<button class="x" data-ask="${r.id}" aria-label="Ölçümü sil">✕</button>`}</td></tr>`).join("");
-  $("#hlist").innerHTML=`<div class="chart"><table><thead><tr><th>Tarih</th><th>Saat</th><th>Ölçüm</th><th class="r">Süre</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  $("#hchart").innerHTML=`<div class="note" style="margin-bottom:6px">${t("dailyBest")}</div>`+
+    lineSVG(days.map(k=>({l:dayShort(k),v:by.get(k),tt:`${dayTR(k)}: ${fmt(by.get(k))}${sx}`})),v=>fmt(v)+sx,t("dailyBest"));
+  const rows=L2.slice().reverse().map(r=>`<tr><td>${dayTR(day(r.t))}</td><td>${timeTR(r.t)}</td><td>${r.mod==="mic"?t("mic"):t("hand")}</td><td class="r"><b>${fmt(r.sn)}</b>${sx}${r.sn===best?" ★":""}</td>
+    <td class="r">${pendingDel===r.id?`<span class="confirm"><button class="btn small" data-del="${r.id}">${t("del")}</button><button class="btn small ghost" data-cancel="1">${t("cancel")}</button></span>`:`<button class="x" data-ask="${r.id}" aria-label="${t("delAria")}">✕</button>`}</td></tr>`).join("");
+  $("#hlist").innerHTML=`<div class="chart"><table><thead><tr><th>${t("thDate")}</th><th>${t("thTime")}</th><th>${t("thMeas")}</th><th class="r">${t("thDur")}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   $("#hlist").querySelectorAll("[data-ask]").forEach(b=>b.addEventListener("click",()=>{pendingDel=b.dataset.ask;renderHiss()}));
   $("#hlist").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click",()=>{pendingDel=null;renderHiss()}));
-  $("#hlist").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{store.hiss=store.hiss.filter(x=>x.id!==b.dataset.del);pendingDel=null;save("hiss");renderHiss()}));
+  $("#hlist").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{store.hiss=store.hiss.filter(x=>x.id!==b.dataset.del);pendingDel=null;save("hiss");renderHiss();renderRapor()}));
 }
-function renderSes(){
-  const L3=store.ses, tot=L3.reduce((s,x)=>s+x.sn,0);
-  const dset=new Set(L3.map(x=>day(x.t)));
-  let streak=0;{const d=new Date();if(!dset.has(day(d.toISOString())))d.setDate(d.getDate()-1);while(dset.has(day(d.toISOString()))){streak++;d.setDate(d.getDate()-1)}}
-  const fav=(()=>{const c={};L3.forEach(x=>c[x.ad]=(c[x.ad]||0)+1);const e=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return e?e[0]:"—"})();
-  $("#sstats").innerHTML=[["Seans",L3.length],["Toplam",Math.round(tot/60)+" dk"],["Seri",streak+" gün"],["En sık",fav]]
-    .map(s=>`<div class="stat"><div class="k">${s[0]}</div><div class="v" style="${String(s[1]).length>8?"font-size:1rem":""}">${esc(s[1])}</div></div>`).join("");
-  $("#slist").innerHTML=L3.length?`<div class="chart"><table><thead><tr><th>Tarih</th><th>Egzersiz</th><th class="r">Süre</th></tr></thead><tbody>${
-    L3.slice().reverse().slice(0,60).map(r=>`<tr><td>${dayTR(day(r.t))} ${timeTR(r.t)}</td><td>${esc(r.ad)}</td><td class="r">${Math.floor(r.sn/60)}:${String(r.sn%60).padStart(2,"0")}</td></tr>`).join("")}</tbody></table></div>`
-    :`<div class="empty">Bir egzersizi bitirdiğinde burada görünecek.</div>`;
-  $("#storenote").textContent=store.db?"Kayıtların hesabında saklanıyor; telefondan ve bilgisayardan aynı veriyi görürsün.":"Kayıtlar bu tarayıcıda saklanıyor.";
-}
-function renderAll(){renderList();renderHiss();renderSes()}
 
+/* ---------- Grafik yardımcıları ---------- */
+function niceMax(v){if(!(v>0))return 10;const p=Math.pow(10,Math.floor(Math.log10(v)));for(const m of [1,2,2.5,5,10])if(m*p>=v)return m*p;return 10*p}
+function lineSVG(pts,vf,aria){
+  const W=640,Hh=220,pl=44,pr=16,pt=20,pb=30,n=pts.length;
+  const mx=niceMax(Math.max(...pts.map(p=>p.v))*1.05);
+  const x=i=>n===1?pl+(W-pl-pr)/2:pl+i*(W-pl-pr)/(n-1);
+  const y=v=>pt+(Hh-pt-pb)*(1-v/mx);
+  let g="";
+  for(let i=0;i<=4;i++){const v=mx*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(v,v%1?1:0)}</text>`}
+  const P=pts.map((p,i)=>`${x(i).toFixed(1)},${y(p.v).toFixed(1)}`);
+  const area=n>1?`<path d="M${x(0)},${y(0)} L${P.join(" L")} L${x(n-1)},${y(0)} Z" fill="var(--accent)" opacity=".12"/>`:"";
+  const line=n>1?`<polyline points="${P.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>`:"";
+  const step=Math.max(1,Math.ceil(n/7));
+  const lab=pts.map((p,i)=>((i%step===0&&n-1-i>=step/2)||i===n-1)?`<text x="${x(i)}" y="${Hh-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(p.l)}</text>`:"").join("");
+  const dots=pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="${i===n-1?5:3}" fill="${i===n-1?"var(--accent)":"var(--surface)"}" stroke="var(--accent)" stroke-width="2"><title>${esc(p.tt||p.l)}</title></circle>`).join("");
+  const lv=pts[n-1].v;
+  const lastLab=`<text x="${Math.min(x(n-1),W-pr-4)}" y="${y(lv)-10}" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)">${esc(vf(lv))}</text>`;
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(aria)}">${g}${area}${line}${dots}${lab}${lastLab}</svg>`;
+}
+function barSVG(bk,aria){
+  const W=640,Hh=230,pl=44,pr=16,pt=16,pb=30,n=bk.length;
+  const mx=niceMax(Math.max(...bk.map(b=>Math.max(b.v,b.goal)))*1.08);
+  const cw=(W-pl-pr)/n, bw=Math.max(2,Math.min(38,cw*.66));
+  const y=v=>pt+(Hh-pt-pb)*(1-v/mx);
+  let g="";
+  for(let i=0;i<=4;i++){const v=mx*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(v,v%1?1:0)}</text>`}
+  const same=bk.every(b=>Math.abs(b.goal-bk[0].goal)<.01);
+  let bars="",goals="",lab="";
+  const step=Math.max(1,Math.ceil(n/12)), mn=" "+t("min");
+  bk.forEach((b,i)=>{
+    const cx=pl+cw*i+cw/2, ok=b.v>=b.goal&&b.v>0;
+    if(b.v>0)bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y(b.v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y(0)-y(b.v)).toFixed(1)}" rx="${Math.min(4,bw/3).toFixed(1)}" fill="var(--accent)" opacity="${ok?1:.42}"><title>${esc(b.tt)}: ${fmt(b.v,b.v<10&&b.v%1?1:0)}${mn}${ok?" ("+t("goalDone")+")":""}</title></rect>`;
+    else bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y(0)-2}" width="${bw.toFixed(1)}" height="2" fill="var(--line)" opacity="${b.fut?.5:1}"><title>${esc(b.tt)}: ${t("noData")}</title></rect>`;
+    if(!same)goals+=`<line x1="${(cx-cw/2+2).toFixed(1)}" x2="${(cx+cw/2-2).toFixed(1)}" y1="${y(b.goal)}" y2="${y(b.goal)}" stroke="var(--fg)" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+    if(i%step===0)lab+=`<text x="${cx.toFixed(1)}" y="${Hh-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(b.l)}</text>`;
+  });
+  if(same)goals=`<line x1="${pl}" x2="${W-pr}" y1="${y(bk[0].goal)}" y2="${y(bk[0].goal)}" stroke="var(--fg)" stroke-width="1.4" stroke-dasharray="5 4"/><text x="${W-pr}" y="${y(bk[0].goal)-6}" text-anchor="end" font-size="11" font-weight="700" fill="var(--fg)">${t("goalLbl")} ${fmt(bk[0].goal,0)}${mn}</text>`;
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(aria)}">${g}${bars}${goals}${lab}</svg>`;
+}
+function hbHTML(rows){
+  const mx=Math.max(1,...rows.map(r=>r.v)), top=Math.max(...rows.map(r=>r.v));
+  return `<div class="hb">${rows.map(r=>`<div>${esc(r.l)} <span class="s">${esc(r.s||"")}</span></div>
+    <div class="t"><i class="${r.v>0&&r.v===top?"top":""}" style="width:${(r.v/mx*100).toFixed(1)}%"></i></div>
+    <div class="v">${r.v?ztxt(r.v):"–"} <span class="s">${r.c?"· "+r.c+" "+t("sessionsWord"):""}</span></div>`).join("")}</div>`;
+}
+
+/* ---------- Hedef ve rapor ---------- */
+const GDK=[5,10,15,20,30,45], GGUN=[3,4,5,6,7];
+const BOLUM=[["05–11",5,11],["11–15",11,15],["15–19",15,19],["19–23",19,23],["23–05",23,5]];
+const PERK=["hafta","gecen","ay","30","yil","tumu","ozel"];
+function delta(now,prev,unit){
+  if(!prev&&!now)return `<span class="note">${unit}</span>`;
+  if(!prev)return `<span class="d up">${t("newTag")}</span> <span class="note">${unit}</span>`;
+  const p=Math.round((now-prev)/prev*100);
+  return `<span class="d ${p>0?"up":p<0?"down":""}">${p>0?"+":""}${p}%</span> <span class="note">${unit}</span>`;
+}
+let per=ls.get("per","hafta"), goalOpen=false;
+function weekInfo(mon,dm){
+  const g=store.ayar.gunDk*60, today=sod(new Date());
+  const days=[...Array(7)].map((_,i)=>{const d=addD(mon,i),s=dm.get(dk(d))||0;return{d,s,ok:s>=g,fut:d>today,today:+d===+today}});
+  return{days,tot:days.reduce((a,x)=>a+x.s,0),ok:days.filter(x=>x.ok).length};
+}
+function renderGoal(){
+  const A=store.ayar, dm=daySecs(store.ses), W=weekInfo(monOf(new Date()),dm);
+  const todayS=dm.get(dk(new Date()))||0, wg=A.gunDk*A.haftaGun*60;
+  $("#goalstrip").setAttribute("aria-label",t("goalStripAria"));
+  $("#goalstrip").innerHTML=`<span>${t("today")} <span class="nums">${ztxt(todayS)} / ${A.gunDk} ${t("min")}</span></span>
+    <span class="bar"><i style="width:${Math.min(100,todayS/(A.gunDk*60)*100)}%"></i></span>
+    <span>${t("thisWeek")} <span class="nums">${W.ok} / ${A.haftaGun} ${t("days")}</span>${W.ok>=A.haftaGun?" ✓":""}</span>`;
+  $("#goaledit").textContent=goalOpen?t("goalOk"):t("goalEdit");
+  $("#g-dk").innerHTML=GDK.map(v=>`<button class="chip" data-v="${v}" aria-pressed="${v===A.gunDk}">${v} ${t("min")}</button>`).join("");
+  $("#g-gun").innerHTML=GGUN.map(v=>`<button class="chip" data-v="${v}" aria-pressed="${v===A.haftaGun}">${v} ${t("days")}</button>`).join("");
+  $("#g-ozet").textContent=F.goalSum(A.haftaGun,A.gunDk);
+  $("#g-dk").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{store.ayar.gunDk=+c.dataset.v;save("ayar");renderRapor()}));
+  $("#g-gun").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{store.ayar.haftaGun=+c.dataset.v;save("ayar");renderRapor()}));
+  const kalan=W.days.filter(x=>(x.fut||(x.today&&!x.ok))).length, eksik=Math.max(0,A.haftaGun-W.ok);
+  const msg=W.ok>=A.haftaGun?F.wkDone():eksik>kalan?F.wkHard(kalan,eksik):F.wkLeft(eksik,A.gunDk,kalan);
+  const WD=t("wd");
+  $("#weekview").innerHTML=`<div class="weeksum"><span>${F.wkSum1(Math.round(W.tot/60),A.gunDk*A.haftaGun)}</span><span>${F.wkSum2(W.ok,A.haftaGun)}</span></div>
+    <div class="prog" style="margin-bottom:12px"><i style="width:${Math.min(100,W.tot/wg*100)}%"></i></div>
+    <div class="week">${W.days.map((x,i)=>`<div class="wd${x.ok?" ok":""}${x.today?" today":""}${x.fut?" future":""}" title="${dayTR(dk(x.d))}">
+      <span class="n">${WD[i]}</span><span class="col"><i style="height:${Math.min(100,x.s/(A.gunDk*60)*100)}%"></i></span>
+      <span class="m">${x.s?Math.round(x.s/60)+"′":"–"}</span><span class="ck">${x.ok?"✓":""}</span></div>`).join("")}</div>
+    <p class="note" style="margin-top:10px">${msg}</p>`;
+}
+function range(){
+  const tday=sod(new Date());
+  if(per==="hafta"){const a=monOf(tday);return[a,addD(a,7)]}
+  if(per==="gecen"){const a=addD(monOf(tday),-7);return[a,addD(a,7)]}
+  if(per==="ay")return[new Date(tday.getFullYear(),tday.getMonth(),1),new Date(tday.getFullYear(),tday.getMonth()+1,1)];
+  if(per==="30")return[addD(tday,-29),addD(tday,1)];
+  if(per==="yil")return[new Date(tday.getFullYear(),0,1),new Date(tday.getFullYear()+1,0,1)];
+  if(per==="tumu"){const all=[...store.ses,...store.hiss].map(x=>new Date(x.t));const f=all.length?sod(new Date(Math.min(...all))):tday;return[f,addD(tday,1)]}
+  const fv=$("#r-from").value, tv=$("#r-to").value;
+  let a=fv?sod(new Date(fv+"T00:00")):addD(tday,-29), b=tv?addD(sod(new Date(tv+"T00:00")),1):addD(tday,1);
+  if(a>=b)b=addD(a,1);
+  return[a,b];
+}
+function buckets(a,b,list){
+  const span=dayDiff(a,b), A=store.ayar, out=[], t1=addD(sod(new Date()),1), MO=t("mo"), WD=t("wd");
+  const kind=span<=45?"gun":span<=220?"hafta":"ay";
+  if(kind==="gun")for(let d=new Date(a);d<b;d=addD(d,1))out.push({a:d,b:addD(d,1),l:(d.getDate()===1||+d===+a)?`${d.getDate()} ${MO[d.getMonth()]}`:String(d.getDate()),tt:`${WD[(d.getDay()+6)%7]} ${dayTR(dk(d))}`,goal:A.gunDk});
+  else if(kind==="hafta")for(let w=monOf(a);w<b;w=addD(w,7))out.push({a:w,b:addD(w,7),l:dayShort(dk(w)),tt:`${dayTR(dk(w))} ${t("weekOf")}`,goal:A.gunDk*A.haftaGun});
+  else for(let m=new Date(a.getFullYear(),a.getMonth(),1);m<b;m=new Date(m.getFullYear(),m.getMonth()+1,1)){
+    const e=new Date(m.getFullYear(),m.getMonth()+1,1);
+    out.push({a:m,b:e,l:MO[m.getMonth()]+(m.getMonth()===0||+m<=+a?" "+String(m.getFullYear()).slice(2):""),tt:`${MO[m.getMonth()]} ${m.getFullYear()}`,goal:A.gunDk*A.haftaGun*dayDiff(m,e)/7});
+  }
+  out.forEach(k=>{k.v=list.filter(x=>inR(x.t,k.a>a?k.a:a,k.b<b?k.b:b)).reduce((s,x)=>s+x.sn,0)/60;k.fut=k.a>=t1});
+  return{kind,out};
+}
+function renderRapor(){
+  renderGoal();
+  const A=store.ayar, g=A.gunDk*60, PL=t("per");
+  $("#perchips").innerHTML=PERK.map((k,i)=>`<button class="chip" data-p="${k}" aria-pressed="${k===per}">${PL[i]}</button>`).join("");
+  $("#perchips").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{per=c.dataset.p;ls.set("per",per);renderRapor()}));
+  $("#customrange").hidden=per!=="ozel";
+  const [a,b]=range(), t1=addD(sod(new Date()),1), end=b<t1?b:t1;
+  const nDays=Math.max(0,dayDiff(a,end));
+  const S2=store.ses.filter(x=>inR(x.t,a,b)), tot=S2.reduce((s,x)=>s+x.sn,0);
+  const pa=addD(a,-dayDiff(a,b)), pe=addD(pa,nDays);
+  const P2=store.ses.filter(x=>inR(x.t,pa,pe)), ptot=P2.reduce((s,x)=>s+x.sn,0);
+  const dmAll=daySecs(store.ses), dm=daySecs(S2);
+  let goalDays=0; for(let d=new Date(a);d<end;d=addD(d,1))if((dm.get(dk(d))||0)>=g)goalDays++;
+  let pGoal=0; for(let d=new Date(pa);d<pe;d=addD(d,1))if((dmAll.get(dk(d))||0)>=g)pGoal++;
+  let wN=0,wHit=0,wCur=false; for(let w=monOf(a);w<end;w=addD(w,7)){const W=weekInfo(w,dmAll);const done=addD(w,7)<=t1;if(W.ok>=A.haftaGun){wHit++;wN++}else if(done)wN++;else wCur=true}
+  let seri=0;{let d=sod(new Date());if((dmAll.get(dk(d))||0)<g)d=addD(d,-1);while((dmAll.get(dk(d))||0)>=g){seri++;d=addD(d,-1)}}
+  let enUzun=0;{const ks=[...dmAll.keys()].filter(k=>dmAll.get(k)>=g).sort();let r=0,prev=null;ks.forEach(k=>{const d=new Date(k+"T00:00");r=(prev&&dayDiff(prev,d)===1)?r+1:1;prev=d;enUzun=Math.max(enUzun,r)})}
+  $("#rkpi").innerHTML=[
+    [t("kTot"),ztxt(tot),delta(tot,ptot,t("vsPrev"))],
+    [t("kSes"),S2.length,S2.length?`<span class="note">${t("avg")} ${ztxt(tot/S2.length)}</span>`:""],
+    [t("kAct"),`${dm.size} / ${nDays}`,`<span class="note">${pctTxt(dm.size,nDays)} ${t("ofDays")}</span>`],
+    [t("kDg"),`${goalDays} / ${nDays}`,delta(goalDays,pGoal,F.dgSub(A.gunDk))],
+    [t("kWg"),`${wHit} / ${wN||0}`,`<span class="note">${F.wgSub(A.haftaGun)}${wCur?" · "+t("weekRunning"):""}</span>`],
+    [t("kStreak"),`${seri} ${t("days")}`,`<span class="note">${t("longest")} ${enUzun} ${t("days")}</span>`]
+  ].map(s=>`<div class="stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div>${s[2]}</div></div>`).join("");
+  const B=buckets(a,b,S2);
+  $("#rchart").innerHTML=`<div class="note" style="margin:4px 0 6px">${t("chartHead")[B.kind]} ${t("chartNote")}</div>`+barSVG(B.out,PL[PERK.indexOf(per)]);
+  const PN=t("parts");
+  const rs=BOLUM.map(([s,lo,hi],i)=>{const xs=S2.filter(x=>{const h=new Date(x.t).getHours();return lo<hi?h>=lo&&h<hi:h>=lo||h<hi});return{l:PN[i],s,v:xs.reduce((q,x)=>q+x.sn,0),c:xs.length}});
+  const topB=rs.slice().sort((p,q)=>q.v-p.v)[0];
+  $("#rsaat").innerHTML=S2.length?hbHTML(rs)+`<p class="note" style="margin-top:10px">${F.topPart(topB.l,topB.s)}</p>`:`<div class="empty">${t("noSes")}</div>`;
+  const rg=t("wd").map((l,i)=>{const xs=S2.filter(x=>(new Date(x.t).getDay()+6)%7===i);return{l,v:xs.reduce((q,x)=>q+x.sn,0),c:xs.length}});
+  $("#rgun").innerHTML=S2.length?hbHTML(rg):`<div class="empty">${t("noSes")}</div>`;
+  const by=new Map();S2.forEach(x=>{const k=x.egz||x.ad;const o=by.get(k)||{ad:exName(x.egz,x.ad),c:0,s:0,d:new Set(),son:x.t};o.c++;o.s+=x.sn;o.d.add(day(x.t));if(x.t>o.son)o.son=x.t;by.set(k,o)});
+  const eg=[...by.values()].sort((p,q)=>q.s-p.s), emx=eg.length?eg[0].s:1;
+  $("#regz").innerHTML=eg.length?`<div class="chart"><table><thead><tr><th>${t("thEx")}</th><th class="r">${t("thSes")}</th><th class="r">${t("thDays")}</th><th class="r">${t("thTot")}</th><th class="r">${t("thAvg")}</th><th class="r">${t("thLast")}</th></tr></thead><tbody>${
+    eg.map(o=>`<tr><td><span class="mini" style="width:${Math.max(4,o.s/emx*48).toFixed(0)}px"></span>${esc(o.ad)}</td><td class="r">${o.c}</td><td class="r">${o.d.size}</td><td class="r"><b>${ztxt(o.s)}</b></td><td class="r">${ztxt(o.s/o.c)}</td><td class="r">${dayShort(day(o.son))}</td></tr>`).join("")}</tbody></table></div>`
+    :`<div class="empty">${t("noSesEx")}</div>`;
+  renderSure(); renderPerf(a,b);
+  const WD=t("wd");
+  $("#slist").innerHTML=S2.length?`<div class="chart"><table><thead><tr><th>${t("thDate")}</th><th>${t("thDay")}</th><th>${t("thTime")}</th><th>${t("thEx")}</th><th class="r">${t("thDur")}</th></tr></thead><tbody>${
+    S2.slice().reverse().slice(0,300).map(r=>{const d=new Date(r.t);return `<tr><td>${dayTR(day(r.t))}</td><td>${WD[(d.getDay()+6)%7]}</td><td>${timeTR(r.t)}</td><td>${esc(exName(r.egz,r.ad))}${r.ptn?` <span class="note">${esc(r.ptn)}</span>`:""}</td><td class="r">${clock(r.sn)}</td></tr>`}).join("")}</tbody></table></div>`
+    :`<div class="empty">${t("noSes")}</div>`;
+  $("#storenote").textContent=store.db?t("storeDb"):t("storeLocal");
+}
+function renderSure(){
+  const L3=store.ses;
+  if(!L3.length){$("#rsure").innerHTML=`<div class="empty">${t("noSes")}</div>`;return}
+  const first=monOf(new Date(Math.min(...L3.map(x=>new Date(x.t))))), cw=monOf(new Date());
+  const wk=[];for(let w=first;w<=cw;w=addD(w,7)){const e=addD(w,7);wk.push({w,v:L3.filter(x=>inR(x.t,w,e)).reduce((s,x)=>s+x.sn,0)})}
+  const avg=(arr)=>arr.length?arr.reduce((s,x)=>s+x,0)/arr.length:0;
+  const n=Math.min(4,Math.floor(wk.length/2))||1;
+  const ilk=avg(wk.slice(0,n).map(x=>x.v)), son=avg(wk.slice(-n).map(x=>x.v));
+  const k=Math.min(5,Math.floor(L3.length/2))||1;
+  const sIlk=avg(L3.slice(0,k).map(x=>x.sn)), sSon=avg(L3.slice(-k).map(x=>x.sn));
+  const ch=(p,q)=>p>0?`<span class="${q>=p?"up":"down"}">${q>=p?"+":""}${Math.round((q-p)/p*100)}%</span>`:"";
+  $("#rsure").innerHTML=`<div class="cmp">
+    <div class="stat"><div class="k">${t("sTot")}</div><div class="v">${ztxt(ilk)} → ${ztxt(son)}</div><div class="note">${wk.length>1?F.firstN(n)+ch(ilk,son):t("firstWeek")}</div></div>
+    <div class="stat"><div class="k">${t("sLen")}</div><div class="v">${ztxt(sIlk)} → ${ztxt(sSon)}</div><div class="note">${L3.length>1?F.firstS(k)+ch(sIlk,sSon):t("single")}</div></div>
+    <div class="stat"><div class="k">${t("sAll")}</div><div class="v">${ztxt(L3.reduce((s,x)=>s+x.sn,0))}</div><div class="note">${F.totSub(L3.length,wk.length)}</div></div>
+  </div>`+(wk.length>1?lineSVG(wk.map(x=>({l:dayShort(dk(x.w)),v:x.v/60,tt:`${dayTR(dk(x.w))} ${t("weekOf")}: ${ztxt(x.v)}`})),v=>fmt(v,0)+" "+t("min"),t("growth")):"");
+}
+function renderPerf(a,b){
+  const H2=store.hiss, P=H2.filter(x=>inR(x.t,a,b)), sx=" "+t("sec");
+  let html=`<p class="note" style="margin-bottom:10px">${t("perfInfo")}`;
+  if(H2.length){
+    const f0=H2[0], best=H2.reduce((m,x)=>x.sn>m.sn?x:m,H2[0]);
+    const ch=f0.sn?`, <span class="${best.sn>=f0.sn?"up":"down"}">${best.sn>=f0.sn?"+":""}${Math.round((best.sn-f0.sn)/f0.sn*100)}%</span>`:"";
+    html+=F.sinceStart(fmt(f0.sn),dayTR(day(f0.t)),fmt(best.sn),dayTR(day(best.t)),ch);
+  }
+  html+="</p>";
+  if(P.length){
+    const by=new Map();P.forEach(x=>{const k=day(x.t);by.set(k,Math.max(by.get(k)||0,x.sn))});
+    const days=[...by.keys()].sort(), fv=by.get(days[0]), lv=by.get(days[days.length-1]), bv=Math.max(...P.map(x=>x.sn));
+    const ch=fv?Math.round((lv-fv)/fv*100):0;
+    html+=`<div class="stats" style="margin-bottom:10px">${[
+      [t("pStart"),fmt(fv)+sx,dayTR(days[0])],[t("pEnd"),fmt(lv)+sx,dayTR(days[days.length-1])],
+      [t("pBest"),fmt(bv)+sx,P.length+" "+t("meas")],[t("pCh"),(ch>0?"+":"")+ch+"%",(lv-fv>=0?"+":"")+fmt(lv-fv)+sx]
+    ].map((s,i)=>`<div class="stat"><div class="k">${s[0]}</div><div class="v ${i===3?(ch>0?"up":ch<0?"down":""):""}">${s[1]}</div><div class="note">${s[2]}</div></div>`).join("")}</div>`;
+    if(days.length>1)html+=lineSVG(days.map(k=>({l:dayShort(k),v:by.get(k),tt:`${dayTR(k)}: ${fmt(by.get(k))}${sx}`})),v=>fmt(v)+sx,t("perf"));
+  }else html+=`<div class="empty">${t("noHissP")}</div>`;
+  const oz=store.ses.filter(x=>x.egz==="ozel"&&x.cyc);
+  if(oz.length>1){const f=oz[0],l=oz[oz.length-1];
+    html+=`<p class="note" style="margin-top:10px">${F.custProg(fmt(f.cyc,f.cyc%1?1:0),esc(f.ptn||""),fmt(l.cyc,l.cyc%1?1:0),esc(l.ptn||""))}</p>`}
+  $("#rperf").innerHTML=html;
+}
+$("#goaledit").addEventListener("click",()=>{goalOpen=!goalOpen;$("#goalform").hidden=!goalOpen;$("#goaledit").setAttribute("aria-expanded",goalOpen);$("#goaledit").textContent=goalOpen?t("goalOk"):t("goalEdit")});
+$("#goalstrip").addEventListener("click",()=>{location.hash="gecmis";show("gecmis")});
+["#r-from","#r-to"].forEach(s=>$(s).addEventListener("change",renderRapor));
+{const d=new Date();$("#r-to").value=dk(d);$("#r-from").value=dk(addD(d,-29))}
+
+/* ---------- Dil değiştirme ---------- */
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(el=>{el.textContent=t(el.dataset.i)});
+  document.querySelectorAll("[data-ih]").forEach(el=>{el.innerHTML=t(el.dataset.ih)});
+  $("#wrap").lang=lang;$("#session").lang=lang;try{document.documentElement.lang=lang}catch(e){}
+  document.querySelectorAll(".langsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang?"true":"false"));
+}
+document.querySelectorAll(".langsw button").forEach(b=>b.addEventListener("click",()=>{
+  if(b.dataset.lang===lang)return; lang=b.dataset.lang; ls.set("lang",lang); hush();
+  applyLang(); renderAll();
+  if(cur&&!$("#setup").hidden)openSetup(cur.id);
+  if(H.state==="idle"||H.state==="done"){$("#modenote").textContent=mode==="mic"?t("noteMic"):t("noteHand");resetHiss()}
+}));
+function renderAll(){renderList();renderHiss();renderRapor()}
+
+applyLang();
 renderAll();
 show(location.hash.slice(1));
 initDb();
