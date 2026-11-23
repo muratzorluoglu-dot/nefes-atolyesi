@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2c7a74">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nefes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<title>Nefes Atölyesi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Düzen: tek sütun, üstte sekmeler; seans açılınca tam ekran nefes küresi */
+:root{
+  --bg:#edf2f1; --surface:#f8fbfa; --line:#d3dfdc; --fg:#15302e; --muted:#5b7471;
+  --accent:#2c7a74; --accent-soft:#d6ebe8;
+  --in:#3f8fb0; --hold:#7a6aa8; --out:#2f8a6c; --wait:#9a8a5e;
+  --good:#2f7d4f; --bad:#a8463f;
+  --f-disp:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1819; --surface:#132324; --line:#24393a; --fg:#e3eeec; --muted:#93aaa7;
+  --accent:#5fb8ae; --accent-soft:#1c3634;
+  --in:#6bb3d3; --hold:#a99ad6; --out:#62c19c; --wait:#c9b680;
+  --good:#6cc28e; --bad:#e08a82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1819; --surface:#132324; --line:#24393a; --fg:#e3eeec; --muted:#93aaa7;
+  --accent:#5fb8ae; --accent-soft:#1c3634;
+  --in:#6bb3d3; --hold:#a99ad6; --out:#62c19c; --wait:#c9b680;
+  --good:#6cc28e; --bad:#e08a82; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.wrap{max-width:760px;margin:0 auto}
+header{padding-block:22px 6px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--f-disp);font-weight:300;font-size:1.9rem;letter-spacing:-.01em;margin:0}
+h1 b{font-weight:600;color:var(--accent)}
+.sub{color:var(--muted);margin:2px 0 0;font-size:.92rem}
+h2{font-family:var(--f-disp);font-weight:400;font-size:1.25rem;margin:0;text-wrap:balance}
+nav.tabs{display:flex;gap:6px;margin:16px 0 18px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{all:unset;cursor:pointer;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-color:var(--accent)}
+nav.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+button,.btn{font:inherit}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:10px 16px;border-radius:10px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn.ghost{background:transparent}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Egzersiz listesi */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.ex{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.ex:hover{border-color:var(--accent)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ex .nm{font-family:var(--f-disp);font-weight:600;font-size:1.05rem}
+.ex .ds{color:var(--muted);font-size:.88rem}
+.rhythm{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}
+.rhythm i{display:block;height:100%}
+.ph-in{background:var(--in)} .ph-hold{background:var(--hold)} .ph-out{background:var(--out)} .ph-wait{background:var(--wait)}
+.nums{font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--fg);font-weight:600;letter-spacing:.02em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:0 0 12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* Ayar paneli */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.panel p{margin:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);padding:6px 12px;border-radius:999px;font-weight:600;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+.lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.howto{margin:0;padding-left:18px;color:var(--fg)}
+.howto li{margin:2px 0}
+.note{font-size:.85rem;color:var(--muted)}
+.custom{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.custom label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:600}
+.custom input{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:100%;font-variant-numeric:tabular-nums}
+.switch{display:inline-flex;gap:8px;align-items:center;font-size:.9rem;cursor:pointer}
+
+/* Seans ekranı */
+#session{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 22px) max(16px,env(safe-area-inset-left,0px))}
+#session .top{width:100%;max-width:760px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#session .ttl{font-family:var(--f-disp);font-weight:600}
+#session .meta{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.9rem}
+.stage{position:relative;width:min(78vw,52vh,380px);aspect-ratio:1;max-width:100%}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.orb{position:absolute;inset:0;margin:auto;width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--phc) 40%,var(--surface)),color-mix(in srgb,var(--phc) 75%,var(--bg)));
+  transform:scale(.55);opacity:.9;will-change:transform}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.phase{font-family:var(--f-disp);font-weight:600;font-size:clamp(1.4rem,5.5vw,2rem);color:var(--fg)}
+.hint{font-size:.9rem;color:var(--fg);opacity:.8;max-width:70%}
+.count{font-family:var(--f-disp);font-weight:300;font-size:clamp(2.6rem,11vw,4.2rem);font-variant-numeric:tabular-nums;line-height:1.1}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.done{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+
+/* Tıslama */
+.hiss{display:flex;flex-direction:column;align-items:center;gap:16px;padding:22px 16px}
+.hissbtn{all:unset;cursor:pointer;width:min(64vw,230px);aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:var(--accent);color:var(--bg);font-family:var(--f-disp);text-align:center;box-shadow:0 0 0 0 var(--accent);transition:box-shadow .15s;touch-action:manipulation;max-width:100%}
+.hissbtn:focus-visible{outline:3px solid var(--fg);outline-offset:4px}
+.hissbtn.live{background:var(--out)}
+.hissbtn .big{font-size:2.8rem;font-weight:300;font-variant-numeric:tabular-nums;line-height:1}
+.hissbtn .sm{font-size:.9rem;font-weight:600;opacity:.9;max-width:80%}
+.meter{width:min(320px,100%);height:10px;border-radius:5px;background:var(--line);position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--out);width:0}
+.meter b{position:absolute;top:0;bottom:0;width:2px;background:var(--fg)}
+.status{min-height:1.5em;text-align:center;color:var(--muted);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.stat .v{font-family:var(--f-disp);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat .k{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.up{color:var(--good)} .down{color:var(--bad)}
+.chart{overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:.9rem}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.r,th.r{text-align:right}
+.x{cursor:pointer;border:0;background:transparent;color:var(--muted);font-size:1rem;padding:2px 6px;border-radius:6px}
+.x:hover{color:var(--bad)}
+.confirm{display:flex;gap:6px;justify-content:flex-end}
+.small{font-size:.8rem;padding:4px 10px;border-radius:8px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.empty{color:var(--muted);text-align:center;padding:18px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.custom{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:1.6rem}}
+@media (prefers-reduced-motion:reduce){.hissbtn{transition:none}}
+</style>
+
+<div class="wrap" lang="tr">
+  <header>
+    <div>
+      <h1>Nefes <b>Atölyesi</b></h1>
+      <p class="sub">Ritmini seç, küreyi izle, sesle yönlendirilerek nefes al.</p>
+    </div>
+  </header>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-egz" aria-selected="true" data-v="egzersiz">Nefes egzersizleri</button>
+    <button role="tab" id="t-tis" aria-selected="false" data-v="tislama">Tıslama testi</button>
+    <button role="tab" id="t-gec" aria-selected="false" data-v="gecmis">Geçmiş</button>
+  </nav>
+
+  <section id="v-egzersiz">
+    <div class="legend">
+      <span><i class="ph-in"></i>Nefes al</span><span><i class="ph-hold"></i>Tut</span>
+      <span><i class="ph-out"></i>Nefes ver</span><span><i class="ph-wait"></i>Boş bekle</span>
+    </div>
+    <div class="grid" id="exlist"></div>
+    <div id="setup" class="panel" hidden style="margin-top:16px"></div>
+  </section>
+
+  <section id="v-tislama" hidden>
+    <div class="stack">
+      <div class="panel">
+        <h2>Tıslayarak nefes verme testi</h2>
+        <ol class="howto">
+          <li>Dik dur, burundan derin, karnını şişirerek nefes al.</li>
+          <li>Dişlerin hafif kapalı, “sssss” diye tıslayarak ağızdan, düzenli ve yavaş ver.</li>
+          <li>Nefesin bitene kadar sesi kesme. Süren kaydedilir.</li>
+        </ol>
+        <div class="row">
+          <span class="lbl">Ölçüm</span>
+          <div class="chips" id="modechips">
+            <button class="chip" data-m="mic" aria-pressed="true">Mikrofon dinlesin</button>
+            <button class="chip" data-m="elle" aria-pressed="false">Elle başlat / bitir</button>
+          </div>
+        </div>
+        <p class="note" id="modenote"></p>
+      </div>
+      <div class="panel hiss">
+        <button class="hissbtn" id="hissbtn"><span class="big" id="hisst">0,0</span><span class="sm" id="hisslbl">Başla</span></button>
+        <div class="meter" id="meter" hidden><i id="meterfill"></i><b id="meterthr"></b></div>
+        <div class="status" id="hissstatus" aria-live="polite"></div>
+        <div class="row" id="sensrow" hidden>
+          <label class="note" for="sens">Hassasiyet</label>
+          <input type="range" id="sens" min="4" max="20" step="1" value="10">
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Gelişimin</h2>
+        <div class="stats" id="hstats"></div>
+        <div class="chart" id="hchart"></div>
+      </div>
+      <div class="panel">
+        <h2>Tüm ölçümler</h2>
+        <div id="hlist"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-gecmis" hidden>
+    <div class="stack">
+      <div class="stats" id="sstats"></div>
+      <div class="panel"><h2>Yapılan seanslar</h2><div id="slist"></div></div>
+      <p class="note" id="storenote"></p>
+    </div>
+  </section>
+</div>
+
+<div id="session" lang="tr" hidden>
+  <div class="top">
+    <span class="ttl" id="s-ttl"></span>
+    <span class="meta" id="s-meta"></span>
+  </div>
+  <div class="stage" id="stage">
+    <div class="orb" id="orb"></div>
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="48" fill="none" stroke="var(--line)" stroke-width="1.2"></circle>
+      <circle id="ring" cx="50" cy="50" r="48" fill="none" stroke="var(--fg)" stroke-width="1.6" stroke-linecap="round"
+        stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 50 50)"></circle>
+    </svg>
+    <div class="center">
+      <div class="phase" id="s-phase">Hazırlan</div>
+      <div class="count" id="s-count">3</div>
+      <div class="hint" id="s-hint"></div>
+    </div>
+  </div>
+  <div class="controls" id="s-controls">
+    <button class="btn" id="s-pause">Duraklat</button>
+    <button class="btn" id="s-sound">Ses: açık</button>
+    <button class="btn ghost" id="s-stop">Bitir</button>
+  </div>
+  <div class="done" id="s-done" hidden>
+    <div class="phase">Tamamlandı</div>
+    <div class="note" id="s-sum"></div>
+    <button class="btn pri" id="s-close">Kapat</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Egzersizler ---------- */
+const L={in:"Nefes al",in2:"Bir yudum daha",hold:"Tut",out:"Nefes ver",wait:"Bekle"};
+const EX=[
+ {id:"kutu",ad:"Kutu nefes",ds:"Odak ve sakinlik için dört eşit kenar. Sporcuların ve stres altındaki ekiplerin sevdiği temel teknik.",
+  p:[["in",4,"Burundan"],["hold",4,"Dolu ciğerle"],["out",4,"Ağızdan yavaşça"],["wait",4,"Boş ciğerle"]],
+  nasil:["Her kenar 4 saniye: al, tut, ver, bekle.","Omuzlar düşük, nefes karından.","Zorlanırsan 3 saniyeye in."]},
+ {id:"478",ad:"4-7-8 rahatlama",ds:"Uykuya geçiş ve kaygıyı yatıştırmak için. Uzun tutma ve daha uzun verme sinir sistemini yavaşlatır.",
+  p:[["in",4,"Burundan sessizce"],["hold",7,""],["out",8,"Ağızdan, hafif vınlayarak"]],
+  nasil:["Dil ucu üst ön dişlerin arkasında.","İlk günlerde 4 tur yeterli.","Başın dönerse dur, normal nefese dön."]},
+ {id:"567",ad:"5-6-7 dengesi",ds:"5 saniyede al, 6 saniye tut, 7 saniyede ver. Kutu nefesten bir adım uzun, verme her zaman en uzunu.",
+  p:[["in",5,"Burundan, karından"],["hold",6,""],["out",7,"Ağızdan, kontrollü"]],
+  nasil:["Verişi alıştan uzun tutmak gevşemeyi artırır.","Her turda süreyi eşit dağıt, sona doğru hızlanma."]},
+ {id:"rez",ad:"Rezonans nefesi",ds:"Dakikada yaklaşık 5,5 nefes. Kalp atım değişkenliğini artıran, günlük 5–10 dakikalık uyum nefesi.",
+  p:[["in",5.5,"Burundan, yumuşak"],["out",5.5,"Burundan, yumuşak"]],
+  nasil:["Duraksamadan bir dalga gibi al ve ver.","Ses çıkarmadan, zorlamadan.","En iyi sonuç için 5 dakika ve üstü."]},
+ {id:"sigh",ad:"Fizyolojik iç çekiş",ds:"Burundan iki kademeli alış, ağızdan uzun veriş. Ani gerginlikte birkaç turda rahatlatan hızlı teknik.",
+  p:[["in",2,"Burundan derin"],["in2",1,"Burundan kısa ek nefes"],["out",6,"Ağızdan, sonuna kadar"]],
+  nasil:["İkinci alış küçük bir “üstüne ekleme”.","Verişte ciğeri tamamen boşalt.","1–3 dakika yeterli."]},
+ {id:"ucgen",ad:"Üçgen nefes",ds:"Al, tut, ver. Kutu nefesin beklemesiz hali; yeni başlayanlar için rahat bir giriş.",
+  p:[["in",4,"Burundan"],["hold",4,""],["out",4,"Ağızdan"]],
+  nasil:["Üç kenar eşit.","Rahatladıkça 5-5-5'e çıkabilirsin."]},
+ {id:"uzun",ad:"Uzun veriş (4-8)",ds:"Verişi alışın iki katı yap. Toplantı öncesi ya da sinirliyken nabzı indirmek için.",
+  p:[["in",4,"Burundan"],["out",8,"Büzük dudaklarla, ağızdan"]],
+  nasil:["Dudakları mum üfler gibi büz.","Veriş akışı başından sonuna eşit olsun."]},
+ {id:"esit",ad:"Eşit nefes (Sama Vritti)",ds:"Yoga geleneğinden: alış ve veriş eşit uzunlukta. Zihni dengelemek ve meditasyona hazırlanmak için.",
+  p:[["in",4,"Burundan"],["out",4,"Burundan"]],
+  nasil:["Burundan al, burundan ver.","Rahatsa her iki yönü 5–6 saniyeye uzat."]},
+ {id:"ari",ad:"Arı nefesi (Bhramari)",ds:"Nefes verirken ağız kapalı “mmmm” diye vızılda. Titreşim baş bölgesini gevşetir, düşünce trafiğini azaltır.",
+  p:[["in",4,"Burundan"],["out",8,"Ağız kapalı, “mmmm” vızıltısıyla"]],
+  nasil:["Dudaklar kapalı, dişler hafif aralık.","İstersen işaret parmaklarınla kulak kepçelerini kapat.","Sessiz bir yerde dene."]},
+ {id:"diyafram",ad:"Diyafram nefesi",ds:"Bir el göğüste, bir el karında. Sadece karın elinin hareket etmesini hedefleyen temel teknik; tıslama testine de hazırlar.",
+  p:[["in",4,"Burundan, karın şişsin"],["hold",2,""],["out",6,"Ağızdan, karın içeri"]],
+  nasil:["Göğüs eli neredeyse sabit kalsın.","Verişin sonunda karnı hafifçe içeri çek."]},
+ {id:"ozel",ad:"Kendi ritmin",ds:"Süreleri sen belirle. 0 yazdığın aşama atlanır.",
+  p:[["in",5,"Burundan"],["hold",6,""],["out",7,"Ağızdan"],["wait",0,""]],
+  nasil:["Al, tut, ver, bekle sürelerini yaz.","Ayarın bu cihazda hatırlanır."],ozel:true}
+];
+const SURE=[1,3,5,10,15];
+const $=s=>document.querySelector(s);
+const fmt=(n,d=1)=>Number(n).toLocaleString("tr-TR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem("nefes-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+          set(k,v){try{localStorage.setItem("nefes-"+k,JSON.stringify(v))}catch(e){}}};
+const phColor=k=>k==="in2"?"in":k;
+
+/* ---------- Depolama: db varsa orada, yoksa bu tarayıcıda ---------- */
+const store={db:null,hiss:ls.get("hiss",[]),ses:ls.get("ses",[])};
+async function initDb(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const db=await window.claude.use("db");
+    if(!db)return;
+    store.db=db;
+    const load=async(k)=>{
+      const snap=await db.doc("kayit/"+k).get();
+      const d=snap&&(snap.data?snap.data():snap);
+      return d&&Array.isArray(d.list)?d.list:null;
+    };
+    const [h,s]=await Promise.all([load("tislama"),load("seanslar")]);
+    // Bu tarayıcıda olup db'de olmayanları birleştir
+    const merge=(a,b)=>{const m=new Map();[...(a||[]),...(b||[])].forEach(x=>m.set(x.id,x));return[...m.values()].sort((x,y)=>x.t<y.t?-1:1)};
+    const mh=merge(h,store.hiss), mss=merge(s,store.ses);
+    const ch=mh.length!==(h||[]).length, cs=mss.length!==(s||[]).length;
+    store.hiss=mh;store.ses=mss;
+    if(ch)await save("hiss");
+    if(cs)await save("ses");
+    renderAll();
+  }catch(e){console.warn("db yok",e)}
+}
+let saving=Promise.resolve();
+function save(which){
+  ls.set(which,store[which]);
+  if(!store.db)return Promise.resolve();
+  const path=which==="hiss"?"kayit/tislama":"kayit/seanslar";
+  saving=saving.then(()=>store.db.doc(path).set({list:store[which]})).catch(e=>console.warn("kayıt",e));
+  return saving;
+}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+/* ---------- Ses ---------- */
+let actx=null, soundOn=ls.get("sound",true), voiceOn=ls.get("voice",true), tts=null;
+function ac(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(actx&&actx.state==="suspended")actx.resume();return actx}
+function bell(k){
+  if(!soundOn)return;const a=ac();if(!a)return;
+  const f={in:528,in2:660,hold:396,out:330,wait:264,end:440}[k]||440;
+  const t=a.currentTime,o=a.createOscillator(),g=a.createGain(),o2=a.createOscillator(),g2=a.createGain();
+  o.type="sine";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2.01;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+1.6);
+  g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(.05,t+.02);g2.gain.exponentialRampToValueAtTime(.001,t+.9);
+  o.connect(g).connect(a.destination);o2.connect(g2).connect(a.destination);o.start(t);o2.start(t);o.stop(t+1.7);o2.stop(t+1);
+}
+function say(text){
+  if(!soundOn||!voiceOn)return;
+  if(tts){tts.speak(text,{language:"tr",rate:1}).catch(()=>{});return}
+  try{if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="tr-TR";u.rate=.95;speechSynthesis.speak(u)}}catch(e){}
+}
+(async()=>{try{if(window.claude&&window.claude.use){tts=await window.claude.use("tts")}}catch(e){}})();
+function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+
+/* ---------- Sekmeler ---------- */
+const views=["egzersiz","tislama","gecmis"];
+let curView=null;
+function show(v){
+  if(!views.includes(v))v="egzersiz";
+  if(v===curView)return; curView=v;
+  views.forEach(x=>{$("#v-"+x).hidden=x!==v});
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v?"true":"false"));
+  if(v!=="tislama")micStop();
+  if(v==="tislama")prepHiss();
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
+  const v=b.dataset.v; if(v==="egzersiz")history.replaceState(null,"",location.pathname+location.search);else location.hash=v; show(v);
+}));
+addEventListener("hashchange",()=>show(location.hash.slice(1)));
+
+/* ---------- Egzersiz listesi ---------- */
+function rhythmHTML(p){
+  const tot=p.reduce((s,x)=>s+x[1],0)||1;
+  return '<div class="rhythm">'+p.filter(x=>x[1]>0).map(x=>`<i class="ph-${phColor(x[0])}" style="flex:${x[1]/tot}"></i>`).join("")+"</div>";
+}
+const numsTxt=p=>p.filter(x=>x[1]>0).map(x=>fmt(x[1],x[1]%1?1:0)).join(" · ");
+function patternOf(e){
+  if(!e.ozel)return e.p;
+  const c=ls.get("ozel",[5,6,7,0]);
+  return e.p.map((x,i)=>[x[0],Math.max(0,Math.min(30,+c[i]||0)),x[2]]);
+}
+function renderList(){
+  $("#exlist").innerHTML=EX.map(e=>{const p=patternOf(e);return `<button class="ex" data-id="${e.id}">
+    <span class="nm">${esc(e.ad)}</span>${rhythmHTML(p)}<span class="nums">${numsTxt(p)} sn</span><span class="ds">${esc(e.ds)}</span></button>`}).join("");
+  document.querySelectorAll(".ex").forEach(b=>b.addEventListener("click",()=>openSetup(b.dataset.id)));
+}
+let cur=null, dur=ls.get("dur",3);
+function openSetup(id){
+  cur=EX.find(e=>e.id===id); const p=patternOf(cur);
+  const cyc=p.reduce((s,x)=>s+x[1],0);
+  const s=$("#setup"); s.hidden=false;
+  s.innerHTML=`<div class="row" style="justify-content:space-between"><h2>${esc(cur.ad)}</h2><span class="nums">${numsTxt(p)} sn · tur ${fmt(cyc,cyc%1?1:0)} sn</span></div>
+   ${rhythmHTML(p)}
+   <p>${esc(cur.ds)}</p>
+   ${cur.ozel?`<div class="custom">${["Al","Tut","Ver","Bekle"].map((n,i)=>`<label for="oz${i}">${n} (sn)<input id="oz${i}" type="number" min="0" max="30" step="0.5" value="${p[i][1]}"></label>`).join("")}</div>`:""}
+   <ul class="howto">${cur.nasil.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+   <div class="row"><span class="lbl">Süre</span><div class="chips" id="durchips">${SURE.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===dur}">${d} dk</button>`).join("")}</div></div>
+   <div class="row">
+     <label class="switch" for="vo"><input type="checkbox" id="vo" ${voiceOn?"checked":""}> Sesli yönlendirme</label>
+   </div>
+   <div class="row"><button class="btn pri" id="go">Başla</button><button class="btn ghost" id="cx">Kapat</button></div>`;
+  s.querySelectorAll("#durchips .chip").forEach(c=>c.addEventListener("click",()=>{dur=+c.dataset.d;ls.set("dur",dur);
+    s.querySelectorAll("#durchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"))}));
+  if(cur.ozel)s.querySelectorAll(".custom input").forEach(inp=>inp.addEventListener("change",()=>{
+    ls.set("ozel",[0,1,2,3].map(i=>+$("#oz"+i).value||0));renderList();openSetup("ozel")}));
+  $("#vo").addEventListener("change",e=>{voiceOn=e.target.checked;ls.set("voice",voiceOn)});
+  $("#cx").addEventListener("click",()=>{s.hidden=true});
+  $("#go").addEventListener("click",()=>{ac();start(cur)});
+  s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
+}
+
+/* ---------- Seans motoru ---------- */
+let S=null, raf=0, wake=null;
+async function lockWake(){try{wake=await navigator.wakeLock.request("screen")}catch(e){wake=null}}
+function start(e){
+  const p=patternOf(e).filter(x=>x[1]>0);
+  if(!p.length)return;
+  const cyc=p.reduce((s,x)=>s+x[1],0);
+  const rounds=Math.max(1,Math.round(dur*60/cyc));
+  S={e,p,cyc,rounds,round:1,idx:-1,phaseStart:0,paused:false,pauseAt:0,prep:3,begin:performance.now(),elapsed:0,scale:.55,from:.55};
+  $("#s-ttl").textContent=e.ad;
+  $("#session").hidden=false;$("#s-done").hidden=true;$("#s-controls").hidden=false;
+  $("#s-pause").textContent="Duraklat";$("#s-sound").textContent="Ses: "+(soundOn?"açık":"kapalı");
+  document.body.style.overflow="hidden";
+  lockWake();
+  setPh("wait"); $("#s-phase").textContent="Hazırlan"; $("#s-hint").textContent="Rahat otur, omuzlarını bırak";
+  cancelAnimationFrame(raf); raf=requestAnimationFrame(tick);
+}
+function setPh(k){$("#stage").style.setProperty("--phc",`var(--${phColor(k)})`)}
+function nextPhase(now){
+  S.idx++;
+  if(S.idx>=S.p.length){S.idx=0;S.round++; if(S.round>S.rounds){finish(true);return false}}
+  const [k,,h]=S.p[S.idx];
+  S.phaseStart=now; S.from=S.scale;
+  setPh(k);$("#s-phase").textContent=L[k];$("#s-hint").textContent=h||"";
+  bell(k); say(L[k]); vib(k==="hold"||k==="wait"?40:80);
+  return true;
+}
+function target(k){return k==="in"?1:k==="in2"?1.1:k==="out"?.55:null}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function tick(now){
+  if(!S)return;
+  if(S.paused){raf=requestAnimationFrame(tick);return}
+  const ring=$("#ring");
+  if(S.prep>0){
+    const el=(now-S.begin)/1000, left=3-el;
+    if(left<=0){S.prep=0;S.idx=-1;S.sessionStart=now;nextPhase(now)}
+    else{$("#s-count").textContent=Math.ceil(left);ring.style.strokeDashoffset=301.6*(1-el/3);
+      $("#s-meta").textContent=`${S.rounds} tur · ${dur} dk`}
+    raf=requestAnimationFrame(tick);return;
+  }
+  const [k,len]=S.p[S.idx];
+  const t=(now-S.phaseStart)/1000;
+  if(t>=len){ if(!nextPhase(S.phaseStart+len*1000))return; raf=requestAnimationFrame(tick);return}
+  const fr=t/len, tg=target(k);
+  if(tg!=null)S.scale=S.from+(tg-S.from)*ease(fr);
+  $("#orb").style.transform=`scale(${S.scale.toFixed(4)})`;
+  ring.style.strokeDashoffset=(301.6*(1-fr)).toFixed(2);
+  $("#s-count").textContent=Math.max(1,Math.ceil(len-t));
+  const done=((S.round-1)*S.cyc+S.p.slice(0,S.idx).reduce((s,x)=>s+x[1],0)+t);
+  const rem=Math.max(0,S.rounds*S.cyc-done);
+  $("#s-meta").textContent=`Tur ${S.round}/${S.rounds} · ${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}`;
+  S.elapsed=done;
+  raf=requestAnimationFrame(tick);
+}
+function finish(complete){
+  cancelAnimationFrame(raf);
+  if(!S)return;
+  const sec=Math.round(S.elapsed||0);
+  if(sec>=20){
+    store.ses.push({id:uid(),t:new Date().toISOString(),egz:S.e.id,ad:S.e.ad,sn:sec,tur:complete?S.rounds:S.round-1});
+    save("ses");renderSes();
+  }
+  bell("end"); if(complete)say("Tamamlandı. Normal nefesine dön.");
+  $("#s-controls").hidden=true;$("#s-done").hidden=false;
+  $("#s-sum").textContent=sec>=20?`${Math.floor(sec/60)} dk ${sec%60} sn nefes çalışması kaydedildi.`:"20 saniyeden kısa seanslar kaydedilmez.";
+  $("#s-phase").textContent="";$("#s-count").textContent="";$("#s-hint").textContent="";
+  $("#orb").style.transform="scale(.55)";$("#ring").style.strokeDashoffset=301.6;
+  S=null; try{wake&&wake.release()}catch(e){} wake=null;
+}
+$("#s-pause").addEventListener("click",()=>{
+  if(!S)return; const now=performance.now();
+  if(!S.paused){S.paused=true;S.pauseAt=now;$("#s-pause").textContent="Devam et";try{speechSynthesis.cancel()}catch(e){}}
+  else{const d=now-S.pauseAt;S.phaseStart+=d;S.begin+=d;S.paused=false;$("#s-pause").textContent="Duraklat"}
+});
+$("#s-sound").addEventListener("click",()=>{soundOn=!soundOn;ls.set("sound",soundOn);$("#s-sound").textContent="Ses: "+(soundOn?"açık":"kapalı")});
+$("#s-stop").addEventListener("click",()=>finish(false));
+$("#s-close").addEventListener("click",()=>{$("#session").hidden=true;document.body.style.overflow=""});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S&&!wake)lockWake()});
+
+/* ---------- Tıslama testi ---------- */
+let mode=ls.get("mode","mic"), H={state:"idle"}, mic=null;
+const sensEl=$("#sens"); sensEl.value=ls.get("sens",10);
+sensEl.addEventListener("input",()=>{ls.set("sens",+sensEl.value);placeThr()});
+function setMode(m){
+  mode=m;ls.set("mode",m);
+  document.querySelectorAll("#modechips .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.m===m?"true":"false"));
+  $("#modenote").textContent=m==="mic"
+   ?"Başla’ya bas, 1 saniye sessiz kal (ortam sesi ölçülür), sonra tıslamaya başla. Ses kesilince süre kendiliğinden durur."
+   :"Tıslamaya başlarken düğmeye bas, nefesin bittiğinde tekrar bas. Boşluk tuşu da çalışır.";
+  $("#meter").hidden=m!=="mic";$("#sensrow").hidden=m!=="mic";
+  resetHiss();
+}
+document.querySelectorAll("#modechips .chip").forEach(c=>c.addEventListener("click",()=>{micStop();setMode(c.dataset.m)}));
+function prepHiss(){setMode(mode)}
+function resetHiss(){H={state:"idle"};$("#hissbtn").classList.remove("live");$("#hisst").textContent="0,0";
+  $("#hisslbl").textContent="Başla";$("#hissstatus").textContent="";}
+function hissClick(){
+  ac();
+  if(mode==="elle"){
+    if(H.state!=="run"){H={state:"run",t0:performance.now()};$("#hissbtn").classList.add("live");$("#hisslbl").textContent="Bitince dokun";
+      $("#hissstatus").textContent="Tısla…";bell("in");hissLoop()}
+    else{const sn=(performance.now()-H.t0)/1000;H.state="idle";record(sn,"elle")}
+    return;
+  }
+  if(H.state==="idle"||H.state==="done")micStart();
+  else if(H.state==="run"){record((H.last-H.t0)/1000,"mic")}
+  else{micStop();resetHiss()}
+}
+$("#hissbtn").addEventListener("click",hissClick);
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"&&!$("#v-tislama").hidden&&$("#session").hidden&&!/INPUT|BUTTON/.test(document.activeElement.tagName)){e.preventDefault();hissClick()}
+});
+function hissLoop(){
+  if(H.state!=="run"||mode!=="elle")return;
+  $("#hisst").textContent=fmt((performance.now()-H.t0)/1000);
+  requestAnimationFrame(hissLoop);
+}
+async function micStart(){
+  $("#hissstatus").textContent="Mikrofon açılıyor…";
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("yok");
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const a=ac(); const src=a.createMediaStreamSource(stream); const an=a.createAnalyser();
+    an.fftSize=2048; an.smoothingTimeConstant=.3; src.connect(an);
+    const bins=new Float32Array(an.frequencyBinCount), hz=a.sampleRate/an.fftSize;
+    const lo=Math.floor(2500/hz), hi=Math.min(bins.length-1,Math.floor(10000/hz));
+    mic={stream,an,bins,lo,hi,floor:-90,cal:[],t0:performance.now()};
+    H={state:"cal"};$("#hissbtn").classList.remove("live");$("#hisslbl").textContent="Sessiz kal";
+    $("#hissstatus").textContent="Ortam sesi ölçülüyor, 1 saniye sessiz kal…";
+    micLoop();
+  }catch(e){
+    $("#hissstatus").textContent="Mikrofona erişilemedi. Bu görünüm mikrofona izin vermiyor olabilir; elle ölçüme geçildi.";
+    setMode("elle"); $("#hissstatus").textContent="Mikrofona erişilemedi; elle ölçüm açık. Tıslamaya başlarken dokun, bitince yine dokun.";
+  }
+}
+function micStop(){
+  if(mic){try{mic.stream.getTracks().forEach(t=>t.stop())}catch(e){} mic=null}
+  if(H.state==="cal"||H.state==="arm"||H.state==="run")resetHiss();
+}
+function level(){
+  mic.an.getFloatFrequencyData(mic.bins);
+  let s=0,n=0; for(let i=mic.lo;i<=mic.hi;i++){const v=mic.bins[i];if(isFinite(v)){s+=Math.pow(10,v/10);n++}}
+  return n?10*Math.log10(s/n):-120;
+}
+const thr=()=>mic?mic.floor+(+sensEl.value):0;
+function placeThr(){if(!mic)return;const pct=v=>Math.max(0,Math.min(100,(v+100)/80*100));$("#meterthr").style.left=pct(thr())+"%"}
+function micLoop(){
+  if(!mic)return;
+  const now=performance.now(), lv=level();
+  $("#meterfill").style.width=Math.max(0,Math.min(100,(lv+100)/80*100))+"%";
+  if(H.state==="cal"){
+    mic.cal.push(lv);
+    if(now-mic.t0>1100){const srt=mic.cal.slice().sort((a,b)=>a-b);mic.floor=srt[Math.floor(srt.length*.8)]||-90;placeThr();
+      H={state:"arm",above:0};$("#hisslbl").textContent="Tısla";$("#hissstatus").textContent="Hazır. Derin nefes al ve tıslamaya başla.";bell("in")}
+  }else if(H.state==="arm"){
+    if(lv>thr()){H.above=H.above||now; if(now-H.above>150){H={state:"run",t0:H.above,last:now};$("#hissbtn").classList.add("live");$("#hisslbl").textContent="Dinliyorum";$("#hissstatus").textContent="Devam et, sesi kesme…"}}
+    else H.above=0;
+  }else if(H.state==="run"){
+    if(lv>thr()-2)H.last=now;
+    $("#hisst").textContent=fmt((H.last-H.t0)/1000);
+    if(now-H.last>700){record((H.last-H.t0)/1000,"mic");return}
+    if(now-H.t0>180000){record((H.last-H.t0)/1000,"mic");return}
+  }else return;
+  requestAnimationFrame(micLoop);
+}
+function record(sn,how){
+  if(mic){try{mic.stream.getTracks().forEach(t=>t.stop())}catch(e){} mic=null}
+  sn=Math.round(sn*10)/10;
+  $("#hissbtn").classList.remove("live");
+  if(sn<2){H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent="Tekrar";
+    $("#hissstatus").textContent="2 saniyeden kısa, kaydedilmedi. Tekrar dene.";return}
+  const prevBest=store.hiss.reduce((m,x)=>Math.max(m,x.sn),0);
+  store.hiss.push({id:uid(),t:new Date().toISOString(),sn,mod:how});
+  save("hiss");
+  H={state:"done"};$("#hisst").textContent=fmt(sn);$("#hisslbl").textContent="Tekrar";
+  bell("end"); vib(120);
+  $("#hissstatus").textContent=`Bu sefer ${fmt(sn)} saniyede yaptın.`+(prevBest&&sn>prevBest?` Yeni rekor, önceki en iyi ${fmt(prevBest)} sn.`:"");
+  say(`Bu sefer ${fmt(sn)} saniye`);
+  renderHiss();
+}
+
+/* ---------- Gelişim ---------- */
+const day=iso=>{const d=new Date(iso);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const dayTR=k=>{const [y,m,d]=k.split("-");return `${+d}.${+m}.${y}`};
+const timeTR=iso=>new Date(iso).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+let pendingDel=null;
+function renderHiss(){
+  const L2=store.hiss;
+  if(!L2.length){
+    $("#hstats").innerHTML=`<div class="stat" style="grid-column:1/-1"><div class="k">Henüz ölçüm yok</div><div class="note">İlk tıslama testini yaptığında başlangıç değerin burada görünecek.</div></div>`;
+    $("#hchart").innerHTML="";$("#hlist").innerHTML=`<div class="empty">Ölçümlerin burada listelenecek.</div>`;return;
+  }
+  const by=new Map(); L2.forEach(x=>{const k=day(x.t);by.set(k,Math.max(by.get(k)||0,x.sn))});
+  const days=[...by.keys()].sort(); const first=by.get(days[0]), last=by.get(days[days.length-1]);
+  const best=Math.max(...L2.map(x=>x.sn)); const ch=first?((last-first)/first*100):0;
+  $("#hstats").innerHTML=[
+    ["İlk gün",fmt(first)+" sn",dayTR(days[0])],
+    ["Son gün",fmt(last)+" sn",dayTR(days[days.length-1])],
+    ["En iyi",fmt(best)+" sn",L2.length+" ölçüm"],
+    ["Gelişim",(ch>0?"+":"")+fmt(ch,0)+"%",(last-first>=0?"+":"")+fmt(last-first)+" sn"]
+  ].map((s,i)=>`<div class="stat"><div class="k">${s[0]}</div><div class="v ${i===3?(ch>0?"up":ch<0?"down":""):""}">${s[1]}</div><div class="note">${s[2]}</div></div>`).join("");
+  // Grafik: günün en iyisi
+  const W=640,Hh=220,pl=40,pr=16,pt=14,pb=30;
+  const vals=days.map(k=>by.get(k)); const mx=Math.max(10,Math.ceil(Math.max(...vals)/10)*10);
+  const x=i=>days.length===1?pl+(W-pl-pr)/2:pl+i*(W-pl-pr)/(days.length-1);
+  const y=v=>pt+(Hh-pt-pb)*(1-v/mx);
+  let g="";
+  for(let i=0;i<=4;i++){const v=mx*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(v,0)}</text>`}
+  const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const area=days.length>1?`<path d="M${x(0)},${y(0)} L${pts.join(" L")} L${x(days.length-1)},${y(0)} Z" fill="var(--accent)" opacity=".12"/>`:"";
+  const line=days.length>1?`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>`:"";
+  const step=Math.max(1,Math.ceil(days.length/6));
+  const lab=days.map((k,i)=>(i%step===0||i===days.length-1)?`<text x="${x(i)}" y="${Hh-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${dayTR(k).slice(0,-5)}</text>`:"").join("");
+  const dots=vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${i===vals.length-1?5:3}" fill="${i===vals.length-1?"var(--accent)":"var(--surface)"}" stroke="var(--accent)" stroke-width="2"><title>${dayTR(days[i])}: ${fmt(v)} sn</title></circle>`).join("");
+  const lastLab=`<text x="${Math.min(x(vals.length-1),W-pr-4)}" y="${y(last)-10}" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)">${fmt(last)} sn</text>`;
+  $("#hchart").innerHTML=`<div class="note" style="margin-bottom:6px">Her günün en iyi süresi (saniye)</div><svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Günlük en iyi tıslama süresi">${g}${area}${line}${dots}${lab}${lastLab}</svg>`;
+  // Liste
+  const rows=L2.slice().reverse().map(r=>`<tr><td>${dayTR(day(r.t))}</td><td>${timeTR(r.t)}</td><td>${r.mod==="mic"?"Mikrofon":"Elle"}</td><td class="r"><b>${fmt(r.sn)}</b> sn${r.sn===best?" ★":""}</td>
+    <td class="r">${pendingDel===r.id?`<span class="confirm"><button class="btn small" data-del="${r.id}">Sil</button><button class="btn small ghost" data-cancel="1">Vazgeç</button></span>`:`<button class="x" data-ask="${r.id}" aria-label="Ölçümü sil">✕</button>`}</td></tr>`).join("");
+  $("#hlist").innerHTML=`<div class="chart"><table><thead><tr><th>Tarih</th><th>Saat</th><th>Ölçüm</th><th class="r">Süre</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  $("#hlist").querySelectorAll("[data-ask]").forEach(b=>b.addEventListener("click",()=>{pendingDel=b.dataset.ask;renderHiss()}));
+  $("#hlist").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click",()=>{pendingDel=null;renderHiss()}));
+  $("#hlist").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{store.hiss=store.hiss.filter(x=>x.id!==b.dataset.del);pendingDel=null;save("hiss");renderHiss()}));
+}
+function renderSes(){
+  const L3=store.ses, tot=L3.reduce((s,x)=>s+x.sn,0);
+  const dset=new Set(L3.map(x=>day(x.t)));
+  let streak=0;{const d=new Date();if(!dset.has(day(d.toISOString())))d.setDate(d.getDate()-1);while(dset.has(day(d.toISOString()))){streak++;d.setDate(d.getDate()-1)}}
+  const fav=(()=>{const c={};L3.forEach(x=>c[x.ad]=(c[x.ad]||0)+1);const e=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return e?e[0]:"—"})();
+  $("#sstats").innerHTML=[["Seans",L3.length],["Toplam",Math.round(tot/60)+" dk"],["Seri",streak+" gün"],["En sık",fav]]
+    .map(s=>`<div class="stat"><div class="k">${s[0]}</div><div class="v" style="${String(s[1]).length>8?"font-size:1rem":""}">${esc(s[1])}</div></div>`).join("");
+  $("#slist").innerHTML=L3.length?`<div class="chart"><table><thead><tr><th>Tarih</th><th>Egzersiz</th><th class="r">Süre</th></tr></thead><tbody>${
+    L3.slice().reverse().slice(0,60).map(r=>`<tr><td>${dayTR(day(r.t))} ${timeTR(r.t)}</td><td>${esc(r.ad)}</td><td class="r">${Math.floor(r.sn/60)}:${String(r.sn%60).padStart(2,"0")}</td></tr>`).join("")}</tbody></table></div>`
+    :`<div class="empty">Bir egzersizi bitirdiğinde burada görünecek.</div>`;
+  $("#storenote").textContent=store.db?"Kayıtların hesabında saklanıyor; telefondan ve bilgisayardan aynı veriyi görürsün.":"Kayıtlar bu tarayıcıda saklanıyor.";
+}
+function renderAll(){renderList();renderHiss();renderSes()}
+
+renderAll();
+show(location.hash.slice(1));
+initDb();
+})();
+</script>
+
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+</body>
+</html>
