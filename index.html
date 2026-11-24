@@ -75,6 +75,22 @@ button,.btn{font:inherit}
 .mv button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .grphead{grid-column:1/-1;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-top:6px}
 .listbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.vtag{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--fg);font-size:.75rem;font-weight:700}
+.vidbtn{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;cursor:pointer;text-align:left;text-decoration:none;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.vidbtn:hover{border-color:var(--accent)}
+.vidbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vidbtn .pl{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.vidbtn .vt{display:flex;flex-direction:column;min-width:0}
+.vidbtn .vt b{font-weight:700}
+#vidmodal{position:fixed;inset:0;z-index:40;background:rgba(6,14,14,.78);display:flex;align-items:center;justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 12px) max(12px,env(safe-area-inset-left,0px))}
+.vbox{background:var(--surface);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;max-width:100%}
+.vframe{position:relative;border-radius:10px;overflow:hidden;background:#000;max-width:100%}
+.vframe.v{width:min(88vw,calc((100vh - 130px)*9/16),420px);aspect-ratio:9/16}
+.vframe.h{width:min(92vw,760px);aspect-ratio:16/9}
+.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.vbar .note{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ex .nm{font-family:var(--f-disp);font-weight:600;font-size:1.05rem}
 .ex .ds{color:var(--muted);font-size:.88rem}
 .rhythm{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}
@@ -185,10 +201,6 @@ header .langsw{display:flex;gap:4px}
 header .langsw button{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:.8rem;padding:5px 10px;border-radius:8px;letter-spacing:.04em}
 header .langsw button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.envnote{display:flex;flex-direction:column;gap:10px;margin:14px 0 0;padding:14px 16px;border-radius:14px;border:1px solid var(--hold);background:var(--surface)}
-.envnote p{margin:0}
-.envnote a.btn{text-decoration:none;display:inline-block}
-.envurl{user-select:all;font-weight:600;color:var(--fg)}
 .vsel{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);max-width:100%}
 </style>
 
@@ -203,14 +215,6 @@ header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offs
       <button data-lang="en" aria-pressed="false">EN</button>
     </div>
   </header>
-  <div class="envnote" id="envnote" hidden>
-    <p data-i="envTxt"></p>
-    <div class="row">
-      <a class="btn pri" id="envlink" href="https://muratzorluoglu-dot.github.io/nefes-atolyesi/" target="_blank" rel="noopener" data-i="envOpen"></a>
-      <button class="btn ghost small" id="envcopy" data-i="envCopy"></button>
-    </div>
-    <p class="note" style="margin:0"><span class="envurl">muratzorluoglu-dot.github.io/nefes-atolyesi</span> · <span data-i="envData"></span></p>
-  </div>
   <nav class="tabs" role="tablist">
     <button role="tab" id="t-egz" aria-selected="true" data-v="egzersiz" data-i="tabEx"></button>
     <button role="tab" id="t-tis" aria-selected="false" data-v="tislama" data-i="tabHiss"></button>
@@ -311,6 +315,13 @@ header .langsw button:focus-visible{outline:2px solid var(--accent);outline-offs
       <p class="note" id="storenote"></p>
     </div>
   </section>
+</div>
+
+<div id="vidmodal" role="dialog" aria-modal="true" aria-labelledby="vcap" hidden>
+  <div class="vbox">
+    <div class="vframe" id="vframe"></div>
+    <div class="vbar"><span class="note" id="vcap"></span><button class="btn small" id="vclose" data-i="close"></button></div>
+  </div>
 </div>
 
 <div id="session" lang="tr" hidden>
@@ -423,10 +434,8 @@ const I={
  favAdd:["Favorilere ekle","Add to favourites"],favDel:["Favorilerden çıkar","Remove from favourites"],
  up:["Yukarı taşı","Move up"],down:["Aşağı taşı","Move down"],
  noFav:["Henüz favorin yok. Bir kartın sağ üstündeki ☆ işaretine dokunarak ekleyebilirsin.","No favourites yet. Tap the ☆ at the top right of a card to add one."],
+ watch:["Nasıl yapılır videosu","How-to video"],inEnglish:["İngilizce","English"],onYT:["YouTube'da açılır","Opens on YouTube"],
  ordHint:["Okları kullanarak sırayı değiştir. Favoriler her zaman en üstte durur.","Use the arrows to change the order. Favourites always stay on top."],
- envTxt:["Claude uygulaması bu sayfanın telefonun hoparlörünü ve mikrofonunu kullanmasına izin vermiyor. Sesli yönlendirme, zil ve tıslama testindeki mikrofon burada çalışmaz. Telefonda hepsi için uygulamayı Safari'de aç.","The Claude app doesn't let this page use your phone's speaker or microphone, so voice guidance, the bell and the hiss-test microphone don't work here. Open the app in Safari to use them all."],
- envOpen:["Safari'de aç","Open in Safari"],envCopy:["Linki kopyala","Copy link"],envCopied:["Kopyalandı","Copied"],
- envData:["Oradaki kayıtlar telefonda ayrı tutulur.","Records there are kept separately on the phone."],
  ver:["Sürüm","Version"],
  wd:[["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"],["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]],
  mo:[["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"],["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]],
@@ -503,6 +512,42 @@ const EX=[
   p:[["in",5,["Burundan","Through your nose"]],["hold",6,["",""]],["out",7,["Ağızdan","Through your mouth"]],["wait",0,["",""]]],
   nasil:[["Al, tut, ver, bekle sürelerini yaz.","Ayarın bu cihazda hatırlanır."],["Enter your in, hold, out and rest times.","Your setting is remembered on this device."]],ozel:true}
 ];
+/* Nasıl yapılır videoları (YouTube; süre sn, kanal, dikey=1). Türkçesi yoksa İngilizcesi gösterilir. */
+const VID={
+ kutu:{tr:["KNp9L1pE8Ys",22,"Elvin ile Yoga",1],en:["QCiW7hsBdkk",33,"Soothing Relaxation",1]},
+ "478":{tr:["_-zkqnd0-1w",57,"Prof. Dr. Muhammed Keskin",1],en:["Xu1oJLDq2yE",49,"GunjanShouts",1]},
+ "567":{tr:["z59H-z10PeU",21,"Prof. Dr. Muhammed Keskin",1],en:["ITX4_f-gRQk",27,"YOGABODY",1]},
+ rez:{en:["kUoeA4pvAoU",11,"Pocket Breath Coach",1]},
+ sigh:{tr:["MKERJf1ULu4",24,"Erkek Adam - Kısalar",1],en:["t7P2DaCwabA",41,"Right Example",1]},
+ ucgen:{en:["ITX4_f-gRQk",27,"YOGABODY",1]},
+ uzun:{tr:["QRMgc8Nxl5Y",46,"KOAH Hastaları Derneği",0],en:["Dr9o-7WfJ8k",52,"The Rehab Portal",1]},
+ esit:{en:["UxF07uKxuNM",41,"YogaToday",1]},
+ ari:{tr:["PuLKahcJNgs",90,"Prof. Dr. Vahide Savcı",1],en:["BTWBzHqdKKo",51,"Tambi wellness",1]},
+ kapal:{tr:["9bWJo4_cJIE",44,"Farkında Nefes",1],en:["MMbP7QxAxfA",55,"Breathe and Flow",1]},
+ diyafram:{tr:["uH8ZXG7SnDA",87,"Dr. Soytürk",0],en:["vUXOfpJVJJM",77,"Canadian Lung Association",0]}
+};
+function vidOf(id){const v=VID[id];if(!v)return null;const x=v[lang]||v.en;return x?{id:x[0],sec:x[1],ch:x[2],vert:!!x[3],foreign:!v[lang]}:null}
+const canEmbed=!(window.claude&&window.claude.use); // Claude sayfası video gömmeye izin vermiyor
+const mmss=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+function vidButton(id){
+  const v=vidOf(id); if(!v)return "";
+  const inner=`<span class="pl" aria-hidden="true">▶</span><span class="vt"><b>${t("watch")} · ${mmss(v.sec)}</b><span class="note">${esc(v.ch)}${v.foreign?" · "+t("inEnglish"):""}${canEmbed?"":" · "+t("onYT")}</span></span>`;
+  return canEmbed?`<button class="vidbtn" id="vidbtn" data-v="${id}">${inner}</button>`
+    :`<a class="vidbtn" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">${inner}</a>`;
+}
+let vidReturn=null;
+function openVideo(id){
+  const v=vidOf(id); if(!v)return;
+  vidReturn=document.activeElement; hush();
+  const f=$("#vframe"); f.className="vframe "+(v.vert?"v":"h");
+  f.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="${esc(exName(id))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  $("#vcap").textContent=`${exName(id)} · ${v.ch}`;
+  $("#vidmodal").hidden=false; $("#vclose").focus();
+}
+function closeVideo(){$("#vframe").innerHTML="";$("#vidmodal").hidden=true;if(vidReturn&&vidReturn.focus)vidReturn.focus()}
+$("#vclose").addEventListener("click",closeVideo);
+$("#vidmodal").addEventListener("click",e=>{if(e.target.id==="vidmodal")closeVideo()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#vidmodal").hidden)closeVideo()});
 const exName=(id,fb)=>{const e=EX.find(x=>x.id===id);return e?X(e.ad):(fb||id)};
 const SURE=[1,3,5,10,15];
 const fmt=(n,d=1)=>Number(n).toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -660,7 +705,7 @@ function moveEx(id,dir){
 function cardHTML(id,i,n){
   const e=EX.find(x=>x.id===id), p=patternOf(e), f=isFav(id);
   return `<div class="ex${f?" fav":""}" data-id="${id}">
-    <button class="exopen" ${ordering?'tabindex="-1"':""}><span class="nm">${esc(X(e.ad))}</span>${rhythmHTML(p)}<span class="nums">${numsTxt(p)} ${t("sec")}</span><span class="ds">${esc(X(e.ds))}</span></button>
+    <button class="exopen" ${ordering?'tabindex="-1"':""}><span class="nm">${esc(X(e.ad))}</span>${rhythmHTML(p)}<span class="nums">${numsTxt(p)} ${t("sec")}${vidOf(id)?`<span class="vtag" title="${t("watch")}">▶ ${mmss(vidOf(id).sec)}</span>`:""}</span><span class="ds">${esc(X(e.ds))}</span></button>
     <button class="star" aria-pressed="${f}" aria-label="${f?t("favDel"):t("favAdd")}" title="${f?t("favDel"):t("favAdd")}">${f?"★":"☆"}</button>
     ${ordering?`<div class="mv"><button data-mv="-1" aria-label="${t("up")}" ${i===0?"disabled":""}>↑</button><button data-mv="1" aria-label="${t("down")}" ${i===n-1?"disabled":""}>↓</button></div>`:""}
   </div>`;
@@ -693,6 +738,7 @@ function openSetup(id,scroll){
   s.innerHTML=`<div class="row" style="justify-content:space-between"><h2>${esc(X(cur.ad))}</h2><span class="nums">${numsTxt(p)} ${t("sec")} · ${F.cycle(fmt(cyc,cyc%1?1:0))}</span></div>
    ${rhythmHTML(p)}
    <p>${esc(X(cur.ds))}</p>
+   ${vidButton(cur.id)}
    ${cur.ozel?`<div class="custom">${t("customLbl").map((n,i)=>`<label for="oz${i}">${n} (${t("sec")})<input id="oz${i}" type="number" min="0" max="30" step="0.5" value="${p[i][1]}"></label>`).join("")}</div>`:""}
    <ul class="howto">${X(cur.nasil).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
    <div class="row"><span class="lbl">${t("duration")}</span><div class="chips" id="durchips">${SURE.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===dur}">${d} ${t("min")}</button>`).join("")}</div></div>
@@ -711,6 +757,7 @@ function openSetup(id,scroll){
   const vs=$("#vsel"); if(vs)vs.addEventListener("change",()=>{ls.set("ssv-"+lang,vs.value);say(t("previewSay"),true)});
   const vt=$("#vtest"); if(vt)vt.addEventListener("click",()=>{unlockAudio();bell("in");say(t("previewSay"),true)});
   $("#cx").addEventListener("click",()=>{s.hidden=true});
+  const vb=$("#vidbtn"); if(vb)vb.addEventListener("click",()=>openVideo(vb.dataset.v));
   $("#go").addEventListener("click",()=>{unlockAudio();start(cur)});
   if(scroll)s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
 }
@@ -1166,18 +1213,9 @@ document.querySelectorAll(".langsw button").forEach(b=>b.addEventListener("click
 }));
 function renderAll(){renderList();renderHiss();renderRapor()}
 
-/* ---------- Ortam: Claude mobil uygulamasında ses/mikrofon yok ---------- */
-const VER="5 · 24.11.2026";
+/* ---------- Sürüm etiketi ---------- */
+const VER="6 · 24.11.2026";
 {
-  const inClaude=!!(window.claude&&window.claude.use);
-  const touch=(()=>{try{return matchMedia("(pointer:coarse)").matches||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)}catch(e){return false}})();
-  $("#envnote").hidden=!(inClaude&&touch);
-  $("#envcopy").addEventListener("click",()=>{
-    const u=$("#envlink").href, b=$("#envcopy");
-    const ok=()=>{b.textContent=t("envCopied");setTimeout(()=>{b.textContent=t("envCopy")},1800)};
-    try{navigator.clipboard.writeText(u).then(ok,()=>{selURL()})}catch(e){selURL()}
-  });
-  function selURL(){try{const r=document.createRange();r.selectNodeContents(document.querySelector(".envurl"));const s=getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}}
   const v=document.createElement("p");v.className="note";v.style.textAlign="center";v.id="ver";
   $("#wrap").appendChild(v);
 }
