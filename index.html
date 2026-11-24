@@ -437,8 +437,8 @@ const F={
 };
 
 /* ---------- Egzersizler ---------- */
-const PH={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","A little more"],hold:["Tut","Hold"],out:["Nefes ver","Breathe out"],wait:["Bekle","Rest"]};
-const SAY={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","Top it up"],hold:["Nefesini tut","Hold your breath"],out:["Nefes ver","Breathe out"],wait:["Boşlukta bekle","Rest, lungs empty"]};
+const PH={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","A little more"],hold:["Tut","Hold"],out:["Nefes ver","Breathe out"],wait:["Bekle","Rest"],pump:["Hızlı ver","Quick exhales"],free:["Serbest nefes","Breathe freely"]};
+const SAY={in:["Nefes al","Breathe in"],in2:["Bir yudum daha","Top it up"],hold:["Nefesini tut","Hold your breath"],out:["Nefes ver","Breathe out"],wait:["Boşlukta bekle","Rest, lungs empty"],pump:["Hızlı verişlere başla","Begin the quick exhales"],free:["Serbest nefes al","Breathe freely"]};
 const EX=[
  {id:"kutu",ad:["Kutu nefes","Box breathing"],ds:["Odak ve sakinlik için dört eşit kenar. Sporcuların ve stres altındaki ekiplerin sevdiği temel teknik.","Four equal sides for focus and calm. A core technique loved by athletes and teams under pressure."],
   p:[["in",4,["Burundan","Through your nose"]],["hold",4,["Dolu ciğerle","Lungs full"]],["out",4,["Ağızdan yavaşça","Slowly through your mouth"]],["wait",4,["Boş ciğerle","Lungs empty"]]],
@@ -464,9 +464,12 @@ const EX=[
  {id:"esit",ad:["Eşit nefes (Sama Vritti)","Equal breathing (Sama Vritti)"],ds:["Yoga geleneğinden: alış ve veriş eşit uzunlukta. Zihni dengelemek ve meditasyona hazırlanmak için.","From the yoga tradition: inhale and exhale of equal length. Balances the mind and prepares you for meditation."],
   p:[["in",4,["Burundan","Through your nose"]],["out",4,["Burundan","Through your nose"]]],
   nasil:[["Burundan al, burundan ver.","Rahatsa her iki yönü 5–6 saniyeye uzat."],["In through the nose, out through the nose.","If comfortable, lengthen both to 5–6 seconds."]]},
- {id:"ari",ad:["Arı nefesi (Bhramari)","Bee breath (Bhramari)"],ds:["Nefes verirken ağız kapalı “mmmm” diye vızılda. Titreşim baş bölgesini gevşetir, düşünce trafiğini azaltır.","Hum “mmmm” with your mouth closed as you exhale. The vibration relaxes the head and quiets busy thoughts."],
+ {id:"ari",ad:["Bhramari (birlik bilinci nefesi)","Bhramari (unity breath)"],ds:["Arı nefesi olarak da bilinir. Nefes verirken ağız kapalı “mmmm” diye vızılda; titreşim baş bölgesini gevşetir, düşünce trafiğini susturur ve içe dönük bir bütünlük hissi verir.","Also called bee breath. Hum “mmmm” with your mouth closed as you exhale; the vibration relaxes the head, quiets busy thoughts and brings an inward sense of wholeness."],
   p:[["in",4,["Burundan","Through your nose"]],["out",8,["Ağız kapalı, “mmmm” vızıltısıyla","Mouth closed, humming “mmmm”"]]],
   nasil:[["Dudaklar kapalı, dişler hafif aralık.","İstersen işaret parmaklarınla kulak kepçelerini kapat.","Sessiz bir yerde dene."],["Lips closed, teeth slightly apart.","You can gently close your ears with your index fingers.","Try it somewhere quiet."]]},
+ {id:"kapal",ad:["Kapalabhati (ateş nefesi)","Kapalabhati (breath of fire)"],ds:["Burundan, karnı içe çekerek kısa ve kuvvetli verişler; alış kendiliğinden olur. Her turun sonunda derin bir nefes, kısa bir tutma ve serbest nefesle dinlenme. Zihni uyandırır, enerji verir.","Short, forceful exhales through the nose by snapping the belly in; the inhale happens on its own. Each round ends with a deep breath, a short hold and free breathing to rest. Wakes up the mind and energises."],
+  p:[["pump",30,["Burundan kuvvetli ver, alış kendiliğinden","Sharp out through the nose, let the inhale happen"]],["in",4,["Burundan derin","Deep through your nose"]],["hold",10,["Rahat tutabildiğin kadar","As long as is comfortable"]],["out",6,["Yavaşça, sonuna kadar","Slowly, all the way out"]],["free",15,["Normal, serbest nefes","Normal, easy breathing"]]],
+  nasil:[["Dik otur, omuzlar gevşek. Her tık sesinde karnı hızla içe çekip burundan kuvvetli ver.","Alışa odaklanma; karın bırakılınca nefes kendiliğinden dolar.","Mide boşken yap. Başın dönerse dur ve normal nefese dön.","Hamilelikte, yüksek tansiyon, kalp rahatsızlığı, epilepsi, fıtık ya da yakın zamanda karın ameliyatı varsa yapma."],["Sit tall with relaxed shoulders. On each click, snap your belly in and breathe out sharply through your nose.","Don't focus on the inhale; it fills on its own when the belly releases.","Practise on an empty stomach. If you feel dizzy, stop and breathe normally.","Avoid it during pregnancy or with high blood pressure, heart conditions, epilepsy, hernia or recent abdominal surgery."]]},
  {id:"diyafram",ad:["Diyafram nefesi","Diaphragmatic breathing"],ds:["Bir el göğüste, bir el karında. Sadece karın elinin hareket etmesini hedefleyen temel teknik; tıslama testine de hazırlar.","One hand on your chest, one on your belly; only the belly hand should move. A foundation that also prepares you for the hiss test."],
   p:[["in",4,["Burundan, karın şişsin","Through your nose, belly rises"]],["hold",2,["",""]],["out",6,["Ağızdan, karın içeri","Through your mouth, belly falls"]]],
   nasil:[["Göğüs eli neredeyse sabit kalsın.","Verişin sonunda karnı hafifçe içeri çek."],["Keep the chest hand almost still.","At the end of the exhale, draw your belly gently in."]]},
@@ -477,7 +480,7 @@ const EX=[
 const exName=(id,fb)=>{const e=EX.find(x=>x.id===id);return e?X(e.ad):(fb||id)};
 const SURE=[1,3,5,10,15];
 const fmt=(n,d=1)=>Number(n).toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d});
-const phColor=k=>k==="in2"?"in":k;
+const phColor=k=>k==="in2"?"in":k==="pump"?"out":k==="free"?"wait":k;
 
 /* ---------- Depolama: db varsa orada, yoksa bu tarayıcıda ---------- */
 const store={db:null,hiss:ls.get("hiss",[]),ses:ls.get("ses",[]),ayar:Object.assign({gunDk:10,haftaGun:5},ls.get("ayar",{}))};
@@ -541,7 +544,12 @@ function unlockAudio(){
 }
 function bell(k){
   if(!soundOn)return;const a=ac();if(!a)return;
-  const f={in:528,in2:660,hold:396,out:330,wait:264,end:440}[k]||440;
+  if(k==="tick"){ // hızlı veriş tıkı: kısa, yumuşak
+    const t0=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.value=880;
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.09,t0+.005);g.gain.exponentialRampToValueAtTime(.001,t0+.12);
+    o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+.14);return;
+  }
+  const f={in:528,in2:660,hold:396,out:330,wait:264,free:264,pump:330,end:440}[k]||440;
   const vol=voiceOn?.12:.22;
   const t0=a.currentTime,o=a.createOscillator(),g=a.createGain(),o2=a.createOscillator(),g2=a.createGain();
   o.type="sine";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2.01;
@@ -669,12 +677,12 @@ function nextPhase(now){
   S.idx++;
   if(S.idx>=S.p.length){S.idx=0;S.round++; if(S.round>S.rounds){finish(true);return false}}
   const [k,len,hh]=S.p[S.idx], h=X(hh);
-  S.phaseStart=now; S.from=S.scale;
+  S.phaseStart=now; S.from=S.scale; S.stroke=0;
   setPh(k);$("#s-phase").textContent=X(PH[k]);$("#s-hint").textContent=h||"";
   bell(k); say(spoken(k,h,len)); vib(k==="hold"||k==="wait"?40:80);
   return true;
 }
-function target(k){return k==="in"?1:k==="in2"?1.1:k==="out"?.55:null}
+function target(k){return k==="in"?1:k==="in2"?1.1:k==="out"?.55:k==="free"?.72:null}
 const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
 const clock=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
 function tick(now){
@@ -692,7 +700,11 @@ function tick(now){
   const tt=(now-S.phaseStart)/1000;
   if(tt>=len){ if(!nextPhase(S.phaseStart+len*1000))return; raf=requestAnimationFrame(tick);return}
   const fr=tt/len, tg=target(k);
-  if(tg!=null)S.scale=S.from+(tg-S.from)*ease(fr);
+  if(k==="pump"){ // saniyede bir veriş: hızlı küçül, yavaşça geri dol
+    const n=Math.floor(tt), f=tt-n;
+    if(n!==S.stroke){S.stroke=n;bell("tick");vib(15)}
+    S.scale=f<.25?.86-(.24*f/.25):.62+.24*((f-.25)/.75);
+  }else if(tg!=null)S.scale=S.from+(tg-S.from)*ease(fr);
   $("#orb").style.transform=`scale(${S.scale.toFixed(4)})`;
   ring.style.strokeDashoffset=(301.6*(1-fr)).toFixed(2);
   $("#s-count").textContent=Math.max(1,Math.ceil(len-tt));
@@ -1088,7 +1100,7 @@ document.querySelectorAll(".langsw button").forEach(b=>b.addEventListener("click
 function renderAll(){renderList();renderHiss();renderRapor()}
 
 /* ---------- Ortam: Claude mobil uygulamasında ses/mikrofon yok ---------- */
-const VER="3 · 23.11.2026";
+const VER="4 · 24.11.2026";
 {
   const inClaude=!!(window.claude&&window.claude.use);
   const touch=(()=>{try{return matchMedia("(pointer:coarse)").matches||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)}catch(e){return false}})();
