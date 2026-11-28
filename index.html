@@ -250,6 +250,12 @@ p{margin:0}
   .sheet-card{max-width:600px;border-radius:24px;padding:36px 36px 32px}
   .sheet-card::before{display:none}
 }
+.voices{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px;width:100%}
+.vopt{cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:56px;padding:10px 14px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:transparent;color:var(--fg)}
+.vopt b{font-weight:600}
+.vopt span{font-size:.78rem;color:var(--muted)}
+.vopt:hover{background:var(--surface-2)}
+.vopt[aria-checked="true"]{border-color:var(--fg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--fg)}
 .custom{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .custom label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:600}
 .custom input{width:100%;font-variant-numeric:tabular-nums}
@@ -708,6 +714,7 @@ const I={
  favAdd:["Favorilere ekle","Add to favourites"],favDel:["Favorilerden çıkar","Remove from favourites"],
  up:["Yukarı taşı","Move up"],down:["Aşağı taşı","Move down"],
  noFav:["Henüz favorin yok. Bir kartın sağ üstündeki yıldıza dokunarak ekleyebilirsin.","No favourites yet. Tap the star at the top right of a card to add one."],
+ deviceVoice:["Cihazın sesi","Device voice"],deviceVoiceD:["Telefonun kendi sesi","Your phone's own voice"],
  watch:["Nasıl yapılır videosu","How-to video"],inEnglish:["İngilizce","English"],onYT:["YouTube'da açılır","Opens on YouTube"],
  ordHint:["Okları kullanarak sırayı değiştir. Favoriler her zaman en üstte durur.","Use the arrows to change the order. Favourites always stay on top."],
  ver:["Sürüm","Version"],
@@ -872,7 +879,23 @@ const TTSV=["airy","buttery","glassy","rounded"];
 let ttsVoice=ls.get("ttsv","airy");
 function ac(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(actx&&actx.state==="suspended")actx.resume();return actx}
 // iPhone: sessiz moddayken de çalsın ve ses ilk dokunuşta açılsın
-let unlocked=false;
+let unlocked=false, voiceEl=null;
+/* Kayıtlı konuşmacılar (Microsoft sinir ağı sesleri, önceden kaydedildi: ses/<id>.json) */
+const RV={
+ tr:[["tr-emel","Emel",["Kadın · yerli Türkçe ses","Female · native Turkish"]],["tr-ahmet","Ahmet",["Erkek · yerli Türkçe ses","Male · native Turkish"]],
+     ["tr-ava","Ava",["Kadın · çok dilli, sıcak","Female · multilingual, warm"]],["tr-andrew","Andrew",["Erkek · çok dilli, sakin","Male · multilingual, calm"]]],
+ en:[["en-ava","Ava",["Kadın · sıcak","Female · warm"]],["en-andrew","Andrew",["Erkek · sakin","Male · calm"]],
+     ["en-emma","Emma",["Kadın · berrak","Female · clear"]],["en-brian","Brian",["Erkek · rahat","Male · easygoing"]]]
+};
+const packs={}, packLoading={};
+function curRV(){const l=RV[lang];let v=ls.get("rv-"+lang,l[0][0]);if(v!=="device"&&!l.some(x=>x[0]===v))v=l[0][0];return v}
+function loadPack(id){
+  if(!id||id==="device")return Promise.resolve(null);
+  if(packs[id])return Promise.resolve(packs[id]);
+  if(!packLoading[id])packLoading[id]=fetch("ses/"+id+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{packs[id]=j;return j}).catch(e=>{delete packLoading[id];console.warn("ses paketi",id,e);return null});
+  return packLoading[id];
+}
+function previewVoice(){unlockAudio();bell("in");loadPack(curRV()).then(()=>say(t("previewSay"),true))}
 function silentWav(){
   const n=800,b=new ArrayBuffer(44+n),v=new DataView(b),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
   w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
@@ -884,7 +907,7 @@ function unlockAudio(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   const a=ac();
   if(unlocked)return; unlocked=true;
-  try{const el=new Audio(silentWav());el.setAttribute("playsinline","");el.play().catch(()=>{})}catch(e){}
+  try{voiceEl=new Audio(silentWav());voiceEl.setAttribute("playsinline","");voiceEl.preload="auto";voiceEl.play().catch(()=>{})}catch(e){}
   try{if(a){const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}}catch(e){}
 }
 function bell(k){
@@ -909,6 +932,12 @@ function voiceScore(v){let s=0;const n=v.name;if(/natural/i.test(n))s+=6;if(/neu
 function pickSS(){const vs=ssVoices();if(!vs.length)return null;const saved=ls.get("ssv-"+lang,"");return vs.find(v=>v.name===saved)||vs.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]}
 function say(text,force){
   if(!force&&(!soundOn||!voiceOn))return;
+  const rv=curRV();
+  if(rv!=="device"){
+    const pk=packs[rv];
+    if(pk&&pk[text]&&voiceEl){try{if(!voiceEl.paused)voiceEl.pause();voiceEl.src=pk[text];voiceEl.play().catch(()=>{})}catch(e){}return}
+    if(!pk)loadPack(rv);
+  }
   if(tts){tts.speak(text,{language:lang,voice:ttsVoice,rate:.9}).catch(()=>{});return}
   try{if("speechSynthesis" in window){
     const ss=speechSynthesis;
@@ -919,11 +948,15 @@ function say(text,force){
     ss.speak(u)}}catch(e){}
 }
 let lastU=null;
-function hush(){try{tts&&tts.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}
+function hush(){try{voiceEl&&voiceEl.pause()}catch(e){}try{tts&&tts.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}
 (async()=>{try{if(window.claude&&window.claude.use){tts=await window.claude.use("tts");if(tts&&cur&&!$("#setup").hidden)openSetup(cur.id)}}catch(e){}})();
 try{speechSynthesis.addEventListener("voiceschanged",()=>{if(cur&&!$("#setup").hidden)openSetup(cur.id)})}catch(e){}
 function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 function voicePicker(){
+  const cur=curRV();
+  return `<div class="voices" id="rvchips" role="radiogroup" aria-label="${t("voice")}">${RV[lang].map(([id,n,d])=>`<button class="vopt" role="radio" data-rv="${id}" aria-checked="${id===cur}"><b>${n}</b><span>${d[LI()]}</span></button>`).join("")}<button class="vopt" role="radio" data-rv="device" aria-checked="${cur==="device"}"><b>${t("deviceVoice")}</b><span>${t("deviceVoiceD")}</span></button></div>`;
+}
+function voicePickerOld(){
   if(tts)return `<div class="chips" id="vchips">${TTSV.map((v,i)=>`<button class="chip" data-tv="${v}" aria-pressed="${v===ttsVoice}">${t("voices")[i]}</button>`).join("")}</div>`;
   const vs=ssVoices(); if(!vs.length)return "";
   const sel=pickSS();
@@ -1020,7 +1053,7 @@ function openSetup(id,scroll){
    <div class="row">
      <label class="switch" for="vo"><input type="checkbox" id="vo" ${voiceOn?"checked":""}> ${t("voiceGuide")}</label>
    </div>
-   <div class="row" id="vrow" ${voiceOn?"":"hidden"}>${vp?`<span class="lbl">${t("voice")}</span>${vp}`:""}<button class="btn small" id="vtest">${t("listen")}</button></div>
+   <div class="stack" id="vrow" style="gap:10px" ${voiceOn?"":"hidden"}><span class="lbl">${t("voice")}</span>${vp}<div><button class="btn small" id="vtest">${ic("vol","sm")}<span>${t("listen")}</span></button></div></div>
    <div class="startrow"><button class="btn pri" id="go">${ic("play","sm")}<span>${t("start")}</span></button><button class="btn ghost" id="cx">${t("close")}</button></div>`;
   s.querySelectorAll("#durchips .chip").forEach(c=>c.addEventListener("click",()=>{dur=+c.dataset.d;ls.set("dur",dur);
     s.querySelectorAll("#durchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"))}));
@@ -1030,7 +1063,10 @@ function openSetup(id,scroll){
   s.querySelectorAll("#vchips .chip").forEach(c=>c.addEventListener("click",()=>{ttsVoice=c.dataset.tv;ls.set("ttsv",ttsVoice);
     s.querySelectorAll("#vchips .chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"));say(t("previewSay"),true)}));
   const vs=$("#vsel"); if(vs)vs.addEventListener("change",()=>{ls.set("ssv-"+lang,vs.value);say(t("previewSay"),true)});
-  const vt=$("#vtest"); if(vt)vt.addEventListener("click",()=>{unlockAudio();bell("in");say(t("previewSay"),true)});
+  const vt=$("#vtest"); if(vt)vt.addEventListener("click",previewVoice);
+  s.querySelectorAll("#rvchips .vopt").forEach(c=>c.addEventListener("click",()=>{ls.set("rv-"+lang,c.dataset.rv);
+    s.querySelectorAll("#rvchips .vopt").forEach(x=>x.setAttribute("aria-checked",x===c?"true":"false"));previewVoice()}));
+  loadPack(curRV());
   $("#cx").addEventListener("click",closeSheet);
   const vb=$("#vidbtn"); if(vb)vb.addEventListener("click",()=>openVideo(vb.dataset.v));
   $("#go").addEventListener("click",()=>{unlockAudio();closeSheet();start(cur)});
@@ -1476,7 +1512,7 @@ function applyLang(){
   document.querySelectorAll(".langsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang?"true":"false"));
 }
 document.querySelectorAll(".langsw button").forEach(b=>b.addEventListener("click",()=>{
-  if(b.dataset.lang===lang)return; lang=b.dataset.lang; ls.set("lang",lang); hush();
+  if(b.dataset.lang===lang)return; lang=b.dataset.lang; ls.set("lang",lang); hush(); loadPack(curRV());
   applyLang(); renderAll();
   if(cur&&!$("#setup").hidden)openSetup(cur.id);
   if(H.state==="idle"||H.state==="done"){$("#modenote").textContent=mode==="mic"?t("noteMic"):t("noteHand");resetHiss()}
@@ -1594,7 +1630,7 @@ $("#h-other").addEventListener("click",()=>{location.hash="egzersiz";show("egzer
 function renderAll(){renderList();renderHiss();renderRapor();renderHome()}
 
 /* ---------- Sürüm etiketi ---------- */
-const VER="7 · 24.11.2026";
+const VER="8 · 28.11.2026";
 {
 }
 const _apply=applyLang;
@@ -1603,6 +1639,7 @@ applyLang=function(){_apply();$("#ver").textContent=t("ver")+" "+VER};
 applyTheme();
 applyLang();
 renderAll();
+loadPack(curRV());
 show(location.hash.slice(1));
 initDb();
 })();
